@@ -79,7 +79,7 @@ onMounted(() => {
       
       <div v-if="event.tags?.length" style="margin: 1rem 0;">
         <strong>タグ:</strong>
-        <span v-for="tag in event.tags" :key="tag" 
+        <span v-for="(tag, index) in event.tags" :key="index" 
               style="background: #007bff; color: white; padding: 0.2rem 0.5rem; margin-left: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
           {{ tag }}
         </span>

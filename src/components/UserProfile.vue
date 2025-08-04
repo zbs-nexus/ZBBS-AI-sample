@@ -31,7 +31,7 @@ function loadProfile() {
         editForm.value = {
           name: profile.value.name || '',
           bio: profile.value.bio || '',
-          hobbyTags: [...(profile.value.hobbyTags || [])]
+          hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null)
         };
       }
     }
@@ -73,7 +73,7 @@ function startEditing() {
     editForm.value = {
       name: profile.value.name || '',
       bio: profile.value.bio || '',
-      hobbyTags: [...(profile.value.hobbyTags || [])]
+      hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null)
     };
   }
 }
@@ -106,7 +106,7 @@ onMounted(() => {
         <div>
           <strong>趣味タグ:</strong>
           <div v-if="profile?.hobbyTags?.length" style="margin-top: 0.5rem;">
-            <span v-for="tag in profile.hobbyTags" :key="tag" 
+            <span v-for="(tag, index) in profile.hobbyTags" :key="index" 
                   style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block;">
               {{ tag }}
             </span>

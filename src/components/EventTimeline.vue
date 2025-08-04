@@ -45,7 +45,7 @@ function createEvent() {
 
 function addTag() {
   const tag = prompt('タグを入力してください');
-  if (tag && !newEvent.value.tags.includes(tag)) {
+  if (tag && tag.trim() && !newEvent.value.tags.includes(tag)) {
     newEvent.value.tags.push(tag);
   }
 }
@@ -86,7 +86,7 @@ onMounted(() => {
         <div>
           <button @click="addTag">タグ追加</button>
           <div v-if="newEvent.tags.length" style="margin-top: 0.5rem;">
-            <span v-for="tag in newEvent.tags" :key="tag" 
+            <span v-for="(tag, index) in newEvent.tags" :key="index" 
                   style="background: #e0e0e0; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
               {{ tag }}
             </span>
@@ -106,7 +106,7 @@ onMounted(() => {
       <p><strong>日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
       <p v-if="event.location"><strong>場所:</strong> {{ event.location }}</p>
       <div v-if="event.tags?.length">
-        <span v-for="tag in event.tags" :key="tag" 
+        <span v-for="(tag, index) in event.tags" :key="index" 
               style="background: #007bff; color: white; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
           {{ tag }}
         </span>
