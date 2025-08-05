@@ -38,10 +38,6 @@ function loadEvents() {
 }
 
 function createEvent() {
-  console.log('createEvent called');
-  console.log('User object:', props.user);
-  console.log('New event data:', newEvent.value);
-  
   if (!newEvent.value.title || !newEvent.value.date) {
     alert('イベント名と日時は必須です');
     return;
@@ -49,15 +45,13 @@ function createEvent() {
   
   const eventData = {
     title: newEvent.value.title,
-    description: newEvent.value.description || null,
-    date: newEvent.value.date,
-    location: newEvent.value.location || null,
-    maxParticipants: newEvent.value.maxParticipants || null,
-    tags: newEvent.value.tags.length > 0 ? newEvent.value.tags : null,
+    description: newEvent.value.description,
+    date: new Date(newEvent.value.date).toISOString(),
+    location: newEvent.value.location,
+    maxParticipants: newEvent.value.maxParticipants,
+    tags: newEvent.value.tags,
     createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
   };
-  
-  console.log('Sending event data:', eventData);
   
   client.models.Event.create(eventData).then((result) => {
     console.log('イベント作成成功:', result);
@@ -65,8 +59,7 @@ function createEvent() {
     newEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
   }).catch((error) => {
     console.error('イベント作成エラー:', error);
-    console.error('Error details:', error.errors);
-    alert('イベント作成に失敗しました: ' + (error.message || 'Unknown error'));
+    alert('イベント作成に失敗しました');
   });
 }
 
@@ -77,28 +70,7 @@ function addTag() {
   }
 }
 
-function testCreateEvent() {
-  console.log('Test create event called');
-  const testData = {
-    title: 'Test Event',
-    description: 'Test Description',
-    date: new Date().toISOString(),
-    location: 'Test Location',
-    maxParticipants: 10,
-    tags: ['test'],
-    createdBy: 'test-user'
-  };
-  
-  console.log('Test data:', testData);
-  
-  client.models.Event.create(testData).then((result) => {
-    console.log('テストイベント作成成功:', result);
-    alert('テストイベント作成成功');
-  }).catch((error) => {
-    console.error('テストイベント作成エラー:', error);
-    alert('テストイベント作成失敗: ' + error.message);
-  });
-}
+
 
 const filteredEvents = computed(() => {
   if (!searchTag.value) return events.value;
@@ -122,9 +94,6 @@ onMounted(() => {
       />
       <button @click="showCreateForm = !showCreateForm">
         {{ showCreateForm ? 'キャンセル' : '新規イベント作成' }}
-      </button>
-      <button @click="testCreateEvent" style="background: #dc3545; color: white;">
-        テスト作成
       </button>
     </div>
 
