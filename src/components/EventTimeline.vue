@@ -38,26 +38,35 @@ function loadEvents() {
 }
 
 function createEvent() {
+  console.log('createEvent called');
+  console.log('User object:', props.user);
+  console.log('New event data:', newEvent.value);
+  
   if (!newEvent.value.title || !newEvent.value.date) {
     alert('イベント名と日時は必須です');
     return;
   }
   
-  client.models.Event.create({
+  const eventData = {
     title: newEvent.value.title,
-    description: newEvent.value.description,
+    description: newEvent.value.description || null,
     date: newEvent.value.date,
-    location: newEvent.value.location,
-    maxParticipants: newEvent.value.maxParticipants,
-    tags: newEvent.value.tags,
-    createdBy: props.user.username || props.user.userId || 'anonymous'
-  }).then((result) => {
+    location: newEvent.value.location || null,
+    maxParticipants: newEvent.value.maxParticipants || null,
+    tags: newEvent.value.tags.length > 0 ? newEvent.value.tags : null,
+    createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
+  };
+  
+  console.log('Sending event data:', eventData);
+  
+  client.models.Event.create(eventData).then((result) => {
     console.log('イベント作成成功:', result);
     showCreateForm.value = false;
     newEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
   }).catch((error) => {
     console.error('イベント作成エラー:', error);
-    alert('イベント作成に失敗しました');
+    console.error('Error details:', error.errors);
+    alert('イベント作成に失敗しました: ' + (error.message || 'Unknown error'));
   });
 }
 
@@ -66,6 +75,29 @@ function addTag() {
   if (tag && tag.trim() && !newEvent.value.tags.includes(tag)) {
     newEvent.value.tags.push(tag);
   }
+}
+
+function testCreateEvent() {
+  console.log('Test create event called');
+  const testData = {
+    title: 'Test Event',
+    description: 'Test Description',
+    date: new Date().toISOString(),
+    location: 'Test Location',
+    maxParticipants: 10,
+    tags: ['test'],
+    createdBy: 'test-user'
+  };
+  
+  console.log('Test data:', testData);
+  
+  client.models.Event.create(testData).then((result) => {
+    console.log('テストイベント作成成功:', result);
+    alert('テストイベント作成成功');
+  }).catch((error) => {
+    console.error('テストイベント作成エラー:', error);
+    alert('テストイベント作成失敗: ' + error.message);
+  });
 }
 
 const filteredEvents = computed(() => {
@@ -90,6 +122,9 @@ onMounted(() => {
       />
       <button @click="showCreateForm = !showCreateForm">
         {{ showCreateForm ? 'キャンセル' : '新規イベント作成' }}
+      </button>
+      <button @click="testCreateEvent" style="background: #dc3545; color: white;">
+        テスト作成
       </button>
     </div>
 
