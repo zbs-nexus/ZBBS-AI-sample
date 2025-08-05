@@ -87,7 +87,7 @@ onMounted(() => {
   <div style="padding: 1rem;">
     <button @click="emit('back')" style="margin-bottom: 1rem;">← 戻る</button>
     
-    <div style="border: 1px solid #ddd; padding: 1.5rem; border-radius: 4px;">
+    <div style="border: 1px solid #ddd; padding: 1.5rem; border-radius: 4px; background: white;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <h2>プロフィール</h2>
         <button v-if="!isEditing" @click="startEditing">編集</button>
