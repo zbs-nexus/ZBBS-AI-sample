@@ -67,7 +67,7 @@ onMounted(() => {
   <div style="padding: 1rem;">
     <button @click="emit('back')" style="margin-bottom: 1rem;">← 戻る</button>
     
-    <div v-if="event" style="border: 1px solid #ddd; padding: 1.5rem; border-radius: 4px;">
+    <div v-if="event" style="border: 1px solid #ddd; padding: 1.5rem; border-radius: 4px; background: white;">
       <h2>{{ event.title }}</h2>
       <p style="margin: 1rem 0;">{{ event.description }}</p>
       
