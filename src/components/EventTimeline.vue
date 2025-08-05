@@ -53,7 +53,7 @@ function addTag() {
 const filteredEvents = computed(() => {
   if (!searchTag.value) return events.value;
   return events.value.filter(event => 
-    event.tags?.some(tag => tag.includes(searchTag.value))
+    event.tags?.some(tag => tag && tag.includes(searchTag.value))
   );
 });
 
