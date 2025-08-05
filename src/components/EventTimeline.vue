@@ -16,7 +16,16 @@ const emit = defineEmits<{
 const events = ref<Array<Schema['Event']['type']>>([]);
 const searchTag = ref('');
 const showCreateForm = ref(false);
+const editingEventId = ref<string | null>(null);
 const newEvent = ref({
+  title: '',
+  description: '',
+  date: '',
+  location: '',
+  maxParticipants: 10,
+  tags: [] as string[]
+});
+const editEvent = ref({
   title: '',
   description: '',
   date: '',
@@ -99,6 +108,62 @@ function isEventOwner(event: Schema['Event']['type']) {
   return event.createdBy === currentUser;
 }
 
+function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
+  clickEvent.stopPropagation();
+  editingEventId.value = event.id;
+  editEvent.value = {
+    title: event.title || '',
+    description: event.description || '',
+    date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
+    location: event.location || '',
+    maxParticipants: event.maxParticipants || 10,
+    tags: [...(event.tags || [])]
+  };
+}
+
+function updateEvent() {
+  if (!editEvent.value.title || !editEvent.value.date) {
+    alert('イベント名と日時は必須です');
+    return;
+  }
+  
+  if (editEvent.value.tags.length === 0) {
+    alert('タグを少なくとも1つ追加してください');
+    return;
+  }
+  
+  const eventData = {
+    id: editingEventId.value!,
+    title: editEvent.value.title,
+    description: editEvent.value.description,
+    date: new Date(editEvent.value.date).toISOString(),
+    location: editEvent.value.location,
+    maxParticipants: editEvent.value.maxParticipants,
+    tags: editEvent.value.tags
+  };
+  
+  client.models.Event.update(eventData).then((result) => {
+    console.log('イベント更新成功:', result);
+    editingEventId.value = null;
+    editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
+  }).catch((error) => {
+    console.error('イベント更新エラー:', error);
+    alert('イベント更新に失敗しました');
+  });
+}
+
+function addEditTag() {
+  const tag = prompt('タグを入力してください');
+  if (tag && tag.trim() && !editEvent.value.tags.includes(tag)) {
+    editEvent.value.tags.push(tag);
+  }
+}
+
+function cancelEdit() {
+  editingEventId.value = null;
+  editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
+}
+
 
 
 const filteredEvents = computed(() => {
@@ -158,22 +223,63 @@ onMounted(() => {
     <!-- スクロール可能なイベント一覧部分 -->
     <div style="flex: 1; overflow-y: auto; padding: 1rem;">
       <div v-for="event in filteredEvents" :key="event.id" 
-           style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; cursor: pointer; position: relative;"
-           @click="emit('showDetail', event.id)">
-        <button v-if="isEventOwner(event)" 
-                @click="deleteEvent(event, $event)"
-                style="position: absolute; top: 0.5rem; right: 0.5rem; background: #dc3545; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
-          削除
-        </button>
-        <h3>{{ event.title }}</h3>
-        <p>{{ event.description }}</p>
-        <p><strong>日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
-        <p v-if="event.location"><strong>場所:</strong> {{ event.location }}</p>
-        <div v-if="event.tags?.length">
-          <span v-for="(tag, index) in event.tags" :key="index" 
-                style="background: #007bff; color: white; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
-            {{ tag }}
-          </span>
+           style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; position: relative;"
+           :style="{ cursor: editingEventId === event.id ? 'default' : 'pointer' }"
+           @click="editingEventId !== event.id ? emit('showDetail', event.id) : null">
+        
+        <div v-if="isEventOwner(event)" style="position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.25rem;">
+          <button @click="startEditEvent(event, $event)"
+                  style="background: #fd7e14; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
+            編集
+          </button>
+          <button @click="deleteEvent(event, $event)"
+                  style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
+            削除
+          </button>
+        </div>
+        
+        <div v-if="editingEventId === event.id">
+          <h3>イベント編集</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+            <input v-model="editEvent.title" placeholder="イベント名" required />
+            <textarea v-model="editEvent.description" placeholder="説明" rows="3"></textarea>
+            <input v-model="editEvent.date" type="datetime-local" required />
+            <input v-model="editEvent.location" placeholder="場所" />
+            <input v-model="editEvent.maxParticipants" type="number" placeholder="最大参加者数" />
+            <div>
+              <button @click="addEditTag">タグ追加 *</button>
+              <div v-if="editEvent.tags.length" style="margin-top: 0.5rem;">
+                <span v-for="(tag, index) in editEvent.tags" :key="index" 
+                      style="background: #e0e0e0; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
+                  {{ tag }}
+                </span>
+              </div>
+              <div v-else style="margin-top: 0.5rem; color: #666; font-size: 0.8rem;">
+                タグを少なくとも1つ追加してください
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button @click="updateEvent" style="background: #28a745; color: white; padding: 0.5rem;">
+                更新
+              </button>
+              <button @click="cancelEdit" style="background: #6c757d; color: white; padding: 0.5rem;">
+                キャンセル
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div v-else>
+          <h3>{{ event.title }}</h3>
+          <p>{{ event.description }}</p>
+          <p><strong>日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
+          <p v-if="event.location"><strong>場所:</strong> {{ event.location }}</p>
+          <div v-if="event.tags?.length">
+            <span v-for="(tag, index) in event.tags" :key="index" 
+                  style="background: #007bff; color: white; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
+              {{ tag }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
