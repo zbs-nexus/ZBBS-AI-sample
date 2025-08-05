@@ -11,7 +11,7 @@ const schema = a.schema({
       tags: a.string().array(),
       createdBy: a.string().required(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
     
   UserProfile: a
     .model({
@@ -20,14 +20,14 @@ const schema = a.schema({
       bio: a.string(),
       hobbyTags: a.string().array(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
     
   EventParticipant: a
     .model({
       eventId: a.id().required(),
       userId: a.string().required(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

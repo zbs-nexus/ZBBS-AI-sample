@@ -28,18 +28,36 @@ const newEvent = ref({
 function loadEvents() {
   client.models.Event.observeQuery().subscribe({
     next: ({ items }) => {
+      console.log('イベントデータ取得:', items);
       events.value = items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    },
+    error: (error) => {
+      console.error('イベントデータ取得エラー:', error);
     }
   });
 }
 
 function createEvent() {
+  if (!newEvent.value.title || !newEvent.value.date) {
+    alert('イベント名と日時は必須です');
+    return;
+  }
+  
   client.models.Event.create({
-    ...newEvent.value,
-    createdBy: props.user.userId
-  }).then(() => {
+    title: newEvent.value.title,
+    description: newEvent.value.description,
+    date: newEvent.value.date,
+    location: newEvent.value.location,
+    maxParticipants: newEvent.value.maxParticipants,
+    tags: newEvent.value.tags,
+    createdBy: props.user.username || props.user.userId || 'anonymous'
+  }).then((result) => {
+    console.log('イベント作成成功:', result);
     showCreateForm.value = false;
     newEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
+  }).catch((error) => {
+    console.error('イベント作成エラー:', error);
+    alert('イベント作成に失敗しました');
   });
 }
 
