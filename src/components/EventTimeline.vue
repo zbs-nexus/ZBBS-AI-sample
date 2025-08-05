@@ -117,7 +117,7 @@ function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
     date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
     location: event.location || '',
     maxParticipants: event.maxParticipants || 10,
-    tags: [...(event.tags || [])]
+    tags: (event.tags || []).filter((tag): tag is string => tag !== null)
   };
 }
 
