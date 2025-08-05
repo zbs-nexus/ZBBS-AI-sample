@@ -109,7 +109,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div style="height: 100vh; display: flex; flex-direction: column;">
+  <div style="height: 100%; display: flex; flex-direction: column;">
     <!-- 固定ヘッダー部分 -->
     <div style="padding: 1rem; border-bottom: 1px solid #ddd; background: white;">
       <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
