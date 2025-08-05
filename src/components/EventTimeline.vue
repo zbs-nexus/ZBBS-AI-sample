@@ -70,6 +70,30 @@ function addTag() {
   }
 }
 
+function deleteEvent(event: Schema['Event']['type'], clickEvent: Event) {
+  clickEvent.stopPropagation();
+  
+  const currentUser = props.user.username || props.user.userId || props.user.sub || 'anonymous';
+  if (event.createdBy !== currentUser) {
+    alert('自分が作成したイベントのみ削除できます');
+    return;
+  }
+  
+  if (confirm(`「${event.title}」を削除しますか？`)) {
+    client.models.Event.delete({ id: event.id }).then(() => {
+      console.log('イベント削除成功');
+    }).catch((error) => {
+      console.error('イベント削除エラー:', error);
+      alert('イベント削除に失敗しました');
+    });
+  }
+}
+
+function isEventOwner(event: Schema['Event']['type']) {
+  const currentUser = props.user.username || props.user.userId || props.user.sub || 'anonymous';
+  return event.createdBy === currentUser;
+}
+
 
 
 const filteredEvents = computed(() => {
@@ -121,8 +145,13 @@ onMounted(() => {
     </div>
 
     <div v-for="event in filteredEvents" :key="event.id" 
-         style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; cursor: pointer;"
+         style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; cursor: pointer; position: relative;"
          @click="emit('showDetail', event.id)">
+      <button v-if="isEventOwner(event)" 
+              @click="deleteEvent(event, $event)"
+              style="position: absolute; top: 0.5rem; right: 0.5rem; background: #dc3545; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
+        削除
+      </button>
       <h3>{{ event.title }}</h3>
       <p>{{ event.description }}</p>
       <p><strong>日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
