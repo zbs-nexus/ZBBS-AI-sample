@@ -43,6 +43,11 @@ function createEvent() {
     return;
   }
   
+  if (newEvent.value.tags.length === 0) {
+    alert('タグを少なくとも1つ追加してください');
+    return;
+  }
+  
   const eventData = {
     title: newEvent.value.title,
     description: newEvent.value.description,
@@ -132,12 +137,15 @@ onMounted(() => {
           <input v-model="newEvent.location" placeholder="場所" />
           <input v-model="newEvent.maxParticipants" type="number" placeholder="最大参加者数" />
           <div>
-            <button @click="addTag">タグ追加</button>
+            <button @click="addTag">タグ追加 *</button>
             <div v-if="newEvent.tags.length" style="margin-top: 0.5rem;">
               <span v-for="(tag, index) in newEvent.tags" :key="index" 
                     style="background: #e0e0e0; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
                 {{ tag }}
               </span>
+            </div>
+            <div v-else style="margin-top: 0.5rem; color: #666; font-size: 0.8rem;">
+              タグを少なくとも1つ追加してください
             </div>
           </div>
           <button @click="createEvent" style="background: #007bff; color: white; padding: 0.5rem;">
