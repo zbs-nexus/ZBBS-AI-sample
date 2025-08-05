@@ -223,7 +223,7 @@ onMounted(() => {
     <!-- スクロール可能なイベント一覧部分 -->
     <div style="flex: 1; overflow-y: auto; padding: 1rem;">
       <div v-for="event in filteredEvents" :key="event.id" 
-           style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; position: relative;"
+           style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; position: relative; background: white;"
            :style="{ cursor: editingEventId === event.id ? 'default' : 'pointer' }"
            @click="editingEventId !== event.id ? emit('showDetail', event.id) : null">
         
