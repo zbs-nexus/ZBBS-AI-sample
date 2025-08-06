@@ -5,12 +5,14 @@ body {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   color: #333;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #app {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: relative;
+  padding-bottom: 2rem;
 }
 
 #app::before {
@@ -37,6 +39,8 @@ main {
   margin: 0 auto;
   position: relative;
   z-index: 1;
+  min-height: calc(100vh - 4rem);
+  box-sizing: border-box;
 }
 
 button {
