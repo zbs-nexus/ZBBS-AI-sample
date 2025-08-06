@@ -18,8 +18,11 @@ const isEditing = ref(false);
 const editForm = ref({
   name: '',
   bio: '',
-  hobbyTags: [] as string[]
+  hobbyTags: [] as string[],
+  profileImageUrl: ''
 });
+const selectedFile = ref<File | null>(null);
+const imagePreview = ref<string>('');
 
 function loadProfile() {
   client.models.UserProfile.observeQuery({
@@ -31,8 +34,10 @@ function loadProfile() {
         editForm.value = {
           name: profile.value.name || '',
           bio: profile.value.bio || '',
-          hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null)
+          hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null),
+          profileImageUrl: profile.value.profileImageUrl || ''
         };
+        imagePreview.value = profile.value.profileImageUrl || '';
       }
     }
   });
@@ -56,6 +61,20 @@ function saveProfile() {
   }
 }
 
+function handleImageSelect(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) {
+    selectedFile.value = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imagePreview.value = e.target?.result as string;
+      editForm.value.profileImageUrl = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
 function addHobbyTag() {
   const tag = prompt('趣味タグを入力してください');
   if (tag && !editForm.value.hobbyTags.includes(tag)) {
@@ -73,8 +92,10 @@ function startEditing() {
     editForm.value = {
       name: profile.value.name || '',
       bio: profile.value.bio || '',
-      hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null)
+      hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null),
+      profileImageUrl: profile.value.profileImageUrl || ''
     };
+    imagePreview.value = profile.value.profileImageUrl || '';
   }
 }
 
@@ -87,15 +108,23 @@ onMounted(() => {
   <div style="padding: 1rem;">
     <button @click="emit('back')" style="margin-bottom: 1rem;">← 戻る</button>
     
-    <div style="border: 1px solid #ddd; padding: 1.5rem; border-radius: 4px; background: white;">
+    <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <h2>プロフィール</h2>
         <button v-if="!isEditing" @click="startEditing">編集</button>
       </div>
       
       <div v-if="!isEditing">
-        <div style="margin-bottom: 1rem;">
-          <strong>名前:</strong> {{ profile?.name || '未設定' }}
+        <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
+          <div v-if="profile?.profileImageUrl" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid #667eea;">
+            <img :src="profile.profileImageUrl" alt="プロフィール画像" style="width: 100%; height: 100%; object-fit: cover;" />
+          </div>
+          <div v-else style="width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 3px solid #667eea;">
+            <span style="color: #666; font-size: 0.8rem;">画像なし</span>
+          </div>
+          <div>
+            <strong>名前:</strong> {{ profile?.name || '未設定' }}
+          </div>
         </div>
         
         <div style="margin-bottom: 1rem;">
@@ -116,28 +145,33 @@ onMounted(() => {
       </div>
       
       <div v-else>
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <div>
+        <div class="form-container">
+          <div class="form-group">
+            <label><strong>プロフィール画像:</strong></label>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+              <div v-if="imagePreview" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid #667eea;">
+                <img :src="imagePreview" alt="プレビュー" style="width: 100%; height: 100%; object-fit: cover;" />
+              </div>
+              <div v-else style="width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 3px solid #667eea;">
+                <span style="color: #666; font-size: 0.8rem;">画像なし</span>
+              </div>
+              <input type="file" accept="image/*" @change="handleImageSelect" style="flex: 1;" />
+            </div>
+          </div>
+          
+          <div class="form-group">
             <label><strong>名前:</strong></label>
-            <input v-model="editForm.name" 
-                   style="width: 100%; padding: 0.5rem; margin-top: 0.25rem; border: 1px solid #ccc; border-radius: 4px;" 
-                   placeholder="名前を入力" />
+            <input v-model="editForm.name" placeholder="名前を入力" />
           </div>
           
-          <div>
+          <div class="form-group">
             <label><strong>自己紹介:</strong></label>
-            <textarea v-model="editForm.bio" 
-                      rows="4" 
-                      style="width: 100%; padding: 0.5rem; margin-top: 0.25rem; border: 1px solid #ccc; border-radius: 4px;" 
-                      placeholder="自己紹介を入力"></textarea>
+            <textarea v-model="editForm.bio" rows="4" placeholder="自己紹介を入力"></textarea>
           </div>
           
-          <div>
+          <div class="form-group">
             <label><strong>趣味タグ:</strong></label>
-            <button @click="addHobbyTag" 
-                    style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              タグ追加
-            </button>
+            <button @click="addHobbyTag" type="button">タグ追加</button>
             <div v-if="editForm.hobbyTags.length" style="margin-top: 0.5rem;">
               <span v-for="(tag, index) in editForm.hobbyTags" :key="index" 
                     style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block; cursor: pointer;"
@@ -147,15 +181,11 @@ onMounted(() => {
             </div>
           </div>
           
-          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-            <button @click="saveProfile" 
-                    style="padding: 0.75rem 1.5rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              保存
-            </button>
-            <button @click="isEditing = false" 
-                    style="padding: 0.75rem 1.5rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              キャンセル
-            </button>
+          <div class="form-group">
+            <div style="display: flex; gap: 1rem;">
+              <button @click="saveProfile" type="button">保存</button>
+              <button @click="isEditing = false" type="button" style="background: #6c757d;">キャンセル</button>
+            </div>
           </div>
         </div>
       </div>

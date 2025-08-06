@@ -19,6 +19,7 @@ const schema = a.schema({
       name: a.string().required(),
       bio: a.string(),
       hobbyTags: a.string().array(),
+      profileImageUrl: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
     

@@ -213,3 +213,52 @@ input:focus, textarea:focus, select:focus {
   font-weight: 600;
   color: #333;
 }
+
+/* プロフィール画像のスタイル */
+.profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #667eea;
+  transition: all 0.3s ease;
+}
+
+.profile-image:hover {
+  border-color: #764ba2;
+  transform: scale(1.05);
+}
+
+.profile-image-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #667eea;
+  color: #666;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.profile-image-placeholder:hover {
+  border-color: #764ba2;
+  background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
+}
+
+/* ファイル入力のスタイル */
+input[type="file"] {
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px dashed rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+input[type="file"]:hover {
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 1);
+}
