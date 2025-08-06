@@ -149,6 +149,32 @@ a:hover {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
+/* フォームコンテナのスクロール設定 */
+.form-container {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  margin-right: -0.5rem;
+}
+
+.form-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.form-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.form-container::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 4px;
+}
+
+.form-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.7);
+}
+
 /* 入力フィールドのスタイル */
 input, textarea, select {
   background: rgba(255, 255, 255, 0.9);
@@ -159,6 +185,8 @@ input, textarea, select {
   font-size: 1rem;
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 input:focus, textarea:focus, select:focus {
@@ -166,4 +194,16 @@ input:focus, textarea:focus, select:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
   background: rgba(255, 255, 255, 1);
+}
+
+/* フォームグループのスタイル */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
 }

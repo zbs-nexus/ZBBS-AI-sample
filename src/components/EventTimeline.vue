@@ -193,16 +193,32 @@ onMounted(() => {
         </button>
       </div>
 
-      <div v-if="showCreateForm" style="border: 1px solid #ccc; padding: 1rem; border-radius: 4px;">
+      <div v-if="showCreateForm" class="card">
         <h3>新規イベント作成</h3>
-        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-          <input v-model="newEvent.title" placeholder="イベント名" required />
-          <textarea v-model="newEvent.description" placeholder="説明" rows="3"></textarea>
-          <input v-model="newEvent.date" type="datetime-local" required />
-          <input v-model="newEvent.location" placeholder="場所" />
-          <input v-model="newEvent.maxParticipants" type="number" placeholder="最大参加者数" />
-          <div>
-            <button @click="addTag">タグ追加 *</button>
+        <div class="form-container">
+          <div class="form-group">
+            <label>イベント名 *</label>
+            <input v-model="newEvent.title" placeholder="イベント名" required />
+          </div>
+          <div class="form-group">
+            <label>説明</label>
+            <textarea v-model="newEvent.description" placeholder="説明" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>日時 *</label>
+            <input v-model="newEvent.date" type="datetime-local" required />
+          </div>
+          <div class="form-group">
+            <label>場所</label>
+            <input v-model="newEvent.location" placeholder="場所" />
+          </div>
+          <div class="form-group">
+            <label>最大参加者数</label>
+            <input v-model="newEvent.maxParticipants" type="number" placeholder="最大参加者数" />
+          </div>
+          <div class="form-group">
+            <label>タグ *</label>
+            <button @click="addTag" type="button">タグ追加</button>
             <div v-if="newEvent.tags.length" style="margin-top: 0.5rem;">
               <span v-for="(tag, index) in newEvent.tags" :key="index" 
                     style="background: #e0e0e0; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
@@ -213,9 +229,11 @@ onMounted(() => {
               タグを少なくとも1つ追加してください
             </div>
           </div>
-          <button @click="createEvent" style="background: #007bff; color: white; padding: 0.5rem;">
-            作成
-          </button>
+          <div class="form-group">
+            <button @click="createEvent" type="button">
+              作成
+            </button>
+          </div>
         </div>
       </div>
     </div>
