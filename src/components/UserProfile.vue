@@ -7,6 +7,7 @@ const client = generateClient<Schema>();
 
 const props = defineProps<{
   user: any;
+  signOut: () => void;
 }>();
 
 const emit = defineEmits<{
@@ -15,7 +16,10 @@ const emit = defineEmits<{
 
 const profile = ref<Schema['UserProfile']['type'] | null>(null);
 const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
+const categories = ref<string[]>([]);
+const selectedHobbyCategory = ref<string>('');
 const isEditing = ref(false);
+let tagSubscription: any = null;
 const editForm = ref({
   name: '',
   bio: '',
@@ -86,13 +90,28 @@ function toggleHobbyTag(tagName: string) {
 }
 
 function loadTagMaster() {
-  client.models.TagMaster.observeQuery({
+  // 既存のsubscriptionをクリア
+  if (tagSubscription) {
+    tagSubscription.unsubscribe();
+  }
+  
+  tagSubscription = client.models.TagMaster.observeQuery({
     filter: { isActive: { eq: true } }
   }).subscribe({
     next: ({ items }) => {
-      tagMaster.value = items.filter(item => item.category === 'hobby').sort((a, b) => a.name.localeCompare(b.name));
+      console.log('取得したタグデータ:', items);
+      tagMaster.value = items.sort((a, b) => a.name.localeCompare(b.name));
+      // すべてのカテゴリーを表示
+      const allCategories = [...new Set(items.map(item => item.category))];
+      console.log('すべてのカテゴリー:', allCategories);
+      categories.value = allCategories.sort();
+      console.log('プロフィール用カテゴリー:', categories.value);
     }
   });
+}
+
+function getHobbyTagsByCategory(category: string) {
+  return tagMaster.value.filter(tag => tag.category === category);
 }
 
 function removeHobbyTag(index: number) {
@@ -116,19 +135,25 @@ onMounted(() => {
   loadProfile();
   loadTagMaster();
 });
+
+// コンポーネントがアンマウントされる時にsubscriptionをクリア
+import { onUnmounted } from 'vue';
+
+onUnmounted(() => {
+  if (tagSubscription) {
+    tagSubscription.unsubscribe();
+  }
+});
 </script>
 
 <template>
-  <div style="padding: 1rem;">
+  <div style="height: 100vh; overflow-y: auto; padding: 1rem; box-sizing: border-box;">
     <button @click="emit('back')" style="margin-bottom: 1rem;">← 戻る</button>
     
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h2>プロフィール</h2>
-        <button v-if="!isEditing" @click="startEditing">編集</button>
-      </div>
+    <div class="card" style="position: relative;">
+      <button v-if="!isEditing" @click="startEditing" style="position: absolute; top: 1rem; right: 1rem;">編集</button>
       
-      <div v-if="!isEditing">
+      <div v-if="!isEditing" style="margin-top: 0;">
         <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
           <div v-if="profile?.profileImageUrl" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid #667eea;">
             <img :src="profile.profileImageUrl" alt="プロフィール画像" style="width: 100%; height: 100%; object-fit: cover;" />
@@ -185,8 +210,14 @@ onMounted(() => {
           
           <div class="form-group">
             <label><strong>趣味タグ:</strong></label>
-            <div style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
-              <div v-for="tag in tagMaster" :key="tag.id" style="margin-bottom: 0.5rem;">
+            <div style="margin-bottom: 0.5rem;">
+              <select v-model="selectedHobbyCategory" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
+                <option value="">カテゴリーを選択してください</option>
+                <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+              </select>
+            </div>
+            <div v-if="selectedHobbyCategory" style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
+              <div v-for="tag in getHobbyTagsByCategory(selectedHobbyCategory)" :key="tag.id" style="margin-bottom: 0.5rem;">
                 <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
                   <input type="checkbox" 
                          :checked="editForm.hobbyTags.includes(tag.name)" 
@@ -212,6 +243,14 @@ onMounted(() => {
           </div>
         </div>
       </div>
+      
+      <button @click="props.signOut" 
+              style="position: absolute; bottom: 1rem; right: 1rem; padding: 0.5rem 1rem; font-size: 0.9rem; background: #dc3545; border: none; border-radius: 8px; color: white; cursor: pointer; transition: all 0.3s ease;"
+              @mouseover="$event.target.style.background = '#c82333'"
+              @mouseout="$event.target.style.background = '#dc3545'">
+        ログアウト
+      </button>
     </div>
+    <div style="padding-bottom: 4rem;"></div>
   </div>
 </template>

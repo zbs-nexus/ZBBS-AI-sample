@@ -15,9 +15,13 @@ const emit = defineEmits<{
 
 const events = ref<Array<Schema['Event']['type']>>([]);
 const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
+const categories = ref<string[]>([]);
+const selectedCategory = ref<string>('');
+const selectedEditCategory = ref<string>('');
 const searchTag = ref('');
 const showCreateForm = ref(false);
 const editingEventId = ref<string | null>(null);
+let tagSubscription: any = null;
 const newEvent = ref({
   title: '',
   description: '',
@@ -48,18 +52,30 @@ function loadEvents() {
 }
 
 function loadTagMaster() {
-  client.models.TagMaster.observeQuery({
+  // 既存のsubscriptionをクリア
+  if (tagSubscription) {
+    tagSubscription.unsubscribe();
+  }
+  
+  tagSubscription = client.models.TagMaster.observeQuery({
     filter: { isActive: { eq: true } }
   }).subscribe({
     next: ({ items }) => {
       tagMaster.value = items.sort((a, b) => a.name.localeCompare(b.name));
+      // カテゴリー一覧を取得
+      const uniqueCategories = [...new Set(items.map(item => item.category))];
+      categories.value = uniqueCategories.sort();
     }
   });
 }
 
+function getTagsByCategory(category: string) {
+  return tagMaster.value.filter(tag => tag.category === category);
+}
+
 function createEvent() {
   if (!newEvent.value.title || !newEvent.value.date) {
-    alert('イベント名と日時は必須です');
+    alert('イベント名と開催日時は必須です');
     return;
   }
   
@@ -131,7 +147,7 @@ function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
 
 function updateEvent() {
   if (!editEvent.value.title || !editEvent.value.date) {
-    alert('イベント名と日時は必須です');
+    alert('イベント名と開催日時は必須です');
     return;
   }
   
@@ -188,9 +204,17 @@ const filteredEvents = computed(() => {
   );
 });
 
+import { onUnmounted } from 'vue';
+
 onMounted(() => {
   loadEvents();
   loadTagMaster();
+});
+
+onUnmounted(() => {
+  if (tagSubscription) {
+    tagSubscription.unsubscribe();
+  }
 });
 </script>
 
@@ -221,12 +245,12 @@ onMounted(() => {
             <textarea v-model="newEvent.description" placeholder="説明" rows="3"></textarea>
           </div>
           <div class="form-group">
-            <label>日時 *</label>
+            <label>開催日時 *</label>
             <input v-model="newEvent.date" type="datetime-local" required />
           </div>
           <div class="form-group">
-            <label>場所</label>
-            <input v-model="newEvent.location" placeholder="場所" />
+            <label>開催場所</label>
+            <input v-model="newEvent.location" placeholder="開催場所" />
           </div>
           <div class="form-group">
             <label>最大参加者数</label>
@@ -234,15 +258,20 @@ onMounted(() => {
           </div>
           <div class="form-group">
             <label>タグ *</label>
-            <div style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
-              <div v-for="tag in tagMaster" :key="tag.id" style="margin-bottom: 0.5rem;">
+            <div style="margin-bottom: 0.5rem;">
+              <select v-model="selectedCategory" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
+                <option value="">カテゴリーを選択してください</option>
+                <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+              </select>
+            </div>
+            <div v-if="selectedCategory" style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
+              <div v-for="tag in getTagsByCategory(selectedCategory)" :key="tag.id" style="margin-bottom: 0.5rem;">
                 <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
                   <input type="checkbox" 
                          :checked="newEvent.tags.includes(tag.name)" 
                          @change="toggleTag(tag.name)" 
                          style="margin-right: 0.5rem; width: auto;" />
                   <span>{{ tag.name }}</span>
-                  <span style="margin-left: 0.5rem; font-size: 0.7rem; color: #666;">({{ tag.category }})</span>
                 </label>
               </div>
             </div>
@@ -289,19 +318,24 @@ onMounted(() => {
             <input v-model="editEvent.title" placeholder="イベント名" required />
             <textarea v-model="editEvent.description" placeholder="説明" rows="3"></textarea>
             <input v-model="editEvent.date" type="datetime-local" required />
-            <input v-model="editEvent.location" placeholder="場所" />
+            <input v-model="editEvent.location" placeholder="開催場所" />
             <input v-model="editEvent.maxParticipants" type="number" placeholder="最大参加者数" />
             <div>
               <label><strong>タグ *</strong></label>
-              <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 0.5rem; background: white; margin-top: 0.5rem;">
-                <div v-for="tag in tagMaster" :key="tag.id" style="margin-bottom: 0.5rem;">
+              <div style="margin-bottom: 0.5rem; margin-top: 0.5rem;">
+                <select v-model="selectedEditCategory" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                  <option value="">カテゴリーを選択してください</option>
+                  <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+                </select>
+              </div>
+              <div v-if="selectedEditCategory" style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 0.5rem; background: white;">
+                <div v-for="tag in getTagsByCategory(selectedEditCategory)" :key="tag.id" style="margin-bottom: 0.5rem;">
                   <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
                     <input type="checkbox" 
                            :checked="editEvent.tags.includes(tag.name)" 
                            @change="toggleTag(tag.name, true)" 
                            style="margin-right: 0.5rem;" />
                     <span>{{ tag.name }}</span>
-                    <span style="margin-left: 0.5rem; font-size: 0.7rem; color: #666;">({{ tag.category }})</span>
                   </label>
                 </div>
               </div>
@@ -327,10 +361,9 @@ onMounted(() => {
         </div>
         
         <div v-else>
-          <h3>{{ event.title }}</h3>
-          <p>{{ event.description }}</p>
-          <p><strong>日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
-          <p v-if="event.location"><strong>場所:</strong> {{ event.location }}</p>
+          <h3 style="font-size: 1.5rem; font-weight: 700;">{{ event.title }}</h3>
+          <p><strong>開催日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
+          <p v-if="event.location"><strong>開催場所:</strong> {{ event.location }}</p>
           <div v-if="event.tags?.length">
             <span v-for="(tag, index) in event.tags" :key="index" 
                   style="background: #007bff; color: white; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
