@@ -59,7 +59,7 @@ function joinEvent() {
   if (!props.eventId || !canJoin.value) return;
   
   client.models.EventParticipant.create({
-    eventId: [props.eventId],
+    eventId: props.eventId,
     userId: props.user.userId
   });
 }
