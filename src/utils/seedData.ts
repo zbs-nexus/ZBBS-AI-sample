@@ -203,18 +203,26 @@ const initialTags = [
 // - 音楽・演奏
 // - 旅行・アウトドア
 
+let isSeeding = false;
+
 export async function seedTagMaster() {
+  // 既に実行中の場合はスキップ
+  if (isSeeding) {
+    console.log('タグマスタの初期化が既に実行中です');
+    return;
+  }
+  
+  isSeeding = true;
+  
   try {
     // 既存のタグを取得
     const { data: existingTags } = await client.models.TagMaster.list();
     
-    // 既存データをすべて削除
+    // 既にデータがある場合はスキップ
     if (existingTags.length > 0) {
-      console.log('既存のタグデータを削除中...');
-      for (const tag of existingTags) {
-        await client.models.TagMaster.delete({ id: tag.id });
-      }
-      console.log('既存データの削除が完了しました');
+      console.log(`タグマスタは既に初期化されています（${existingTags.length}件）`);
+      isSeeding = false;
+      return;
     }
 
     // 重複を除去したユニークなタグを作成
@@ -230,5 +238,7 @@ export async function seedTagMaster() {
     console.log(`タグマスタの初期化が完了しました（${uniqueTags.length}件）`);
   } catch (error) {
     console.error('タグマスタの初期化エラー:', error);
+  } finally {
+    isSeeding = false;
   }
 }
