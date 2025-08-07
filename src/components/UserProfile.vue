@@ -246,8 +246,8 @@ onUnmounted(() => {
       
       <button @click="props.signOut" 
               style="position: absolute; bottom: 1rem; right: 1rem; padding: 0.5rem 1rem; font-size: 0.9rem; background: #dc3545; border: none; border-radius: 8px; color: white; cursor: pointer; transition: all 0.3s ease;"
-              @mouseover="$event.target.style.background = '#c82333'"
-              @mouseout="$event.target.style.background = '#dc3545'">
+              @mouseover="($event.target as HTMLElement).style.background = '#c82333'"
+              @mouseout="($event.target as HTMLElement).style.background = '#dc3545'">
         ログアウト
       </button>
     </div>
