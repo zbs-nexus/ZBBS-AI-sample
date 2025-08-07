@@ -34,8 +34,8 @@ onMounted(() => {
     <authenticator>
       <template v-slot="{ signOut, user }">
         <nav style="padding: 1rem; border-bottom: 1px solid #ccc; display: flex; gap: 1rem; align-items: center; background: white; position: sticky; top: 0; z-index: 100;">
+          <h1 style="margin: 0; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;">ZBBS部</h1>
           <img src="/src/assets/logo.png" alt="ZBBS部" style="height: 40px; width: auto;" />
-          <h1 style="margin: 0;">ZBBS部</h1>
           <button @click="showTimeline">イベント一覧</button>
           <button @click="showProfile">プロフィール</button>
           <button @click="signOut" style="margin-left: auto;">ログアウト</button>
