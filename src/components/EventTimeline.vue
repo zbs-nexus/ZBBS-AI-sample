@@ -211,15 +211,15 @@ onUnmounted(() => {
 <template>
   <div style="height: 100%; display: flex; flex-direction: column;">
     <!-- 固定ヘッダー部分 -->
-    <div style="padding: 1rem; border-bottom: 1px solid #ddd; background: white;">
-      <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
+    <div style="padding: 0.3rem 0.5rem; border-bottom: 1px solid #ddd; background: white;">
+      <div style="margin-bottom: 0.5rem; display: flex; gap: 0.5rem; align-items: center;">
         <input 
           v-model="searchTag" 
-          placeholder="タグで検索..." 
-          style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;"
+          placeholder="タグ検索" 
+          style="padding: 0.4rem 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; flex: 1; max-width: 200px;"
         />
-        <button @click="showCreateForm = !showCreateForm">
-          {{ showCreateForm ? 'キャンセル' : '新規イベント作成' }}
+        <button @click="showCreateForm = !showCreateForm" style="padding: 0.4rem 0.8rem; font-size: 0.9rem; white-space: nowrap;">
+          {{ showCreateForm ? 'キャンセル' : '新規作成' }}
         </button>
       </div>
 
@@ -285,9 +285,9 @@ onUnmounted(() => {
     </div>
 
     <!-- スクロール可能なイベント一覧部分 -->
-    <div style="flex: 1; overflow-y: auto; padding: 1rem;">
+    <div style="flex: 1; overflow-y: auto; padding: 0.3rem 0.5rem; scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
       <div v-for="event in filteredEvents" :key="event.id" 
-           style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; position: relative; background: white;"
+           style="border: 1px solid #ddd; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 4px; position: relative; background: white;"
            :style="{ cursor: editingEventId === event.id ? 'default' : 'pointer' }"
            @click="editingEventId !== event.id ? emit('showDetail', event.id) : null">
         
@@ -350,13 +350,13 @@ onUnmounted(() => {
           </div>
         </div>
         
-        <div v-else>
-          <h3 style="font-size: 1.5rem; font-weight: 700;">{{ event.title }}</h3>
-          <p><strong>開催日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
-          <p v-if="event.location"><strong>開催場所:</strong> {{ event.location }}</p>
-          <div v-if="event.tags?.length">
+        <div v-else style="cursor: pointer;">
+          <h3 style="font-size: 1.3rem; font-weight: 700; margin: 0 0 0.3rem 0;">{{ event.title }}</h3>
+          <p style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
+          <p v-if="event.location" style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催場所:</strong> {{ event.location }}</p>
+          <div v-if="event.tags?.length" style="margin-top: 0.3rem;">
             <span v-for="(tag, index) in event.tags" :key="index" 
-                  style="background: #007bff; color: white; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
+                  style="background: #007bff; color: white; padding: 0.15rem 0.4rem; margin-right: 0.3rem; border-radius: 10px; font-size: 0.75rem;">
               {{ tag }}
             </span>
           </div>
@@ -365,3 +365,24 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* スクロールバーのスタイル */
+div[style*="overflow-y: auto"]::-webkit-scrollbar {
+  width: 8px;
+}
+
+div[style*="overflow-y: auto"]::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+</style>
