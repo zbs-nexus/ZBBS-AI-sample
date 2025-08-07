@@ -21,7 +21,8 @@ const selectedHobbyCategory = ref<string>('');
 const isEditing = ref(false);
 const editForm = ref({
   name: '',
-  bio: '',
+  department: '',
+  section: '',
   hobbyTags: [] as string[],
   profileImageUrl: ''
 });
@@ -30,38 +31,67 @@ const imagePreview = ref<string>('');
 let tagSubscription: any = null;
 
 function loadProfile() {
+  console.log('プロフィール読み込み開始:', props.user.userId);
   client.models.UserProfile.observeQuery({
     filter: { userId: { eq: props.user.userId } }
   }).subscribe({
     next: ({ items }) => {
+      console.log('プロフィールデータ:', items);
       if (items.length > 0) {
         profile.value = items[0];
+        console.log('既存プロフィール:', profile.value);
         editForm.value = {
           name: profile.value.name || '',
-          bio: profile.value.bio || '',
+          department: profile.value.department || '',
+          section: profile.value.section || '',
           hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null),
           profileImageUrl: profile.value.profileImageUrl || ''
         };
         imagePreview.value = profile.value.profileImageUrl || '';
+      } else {
+        console.log('プロフィールが見つかりません');
       }
+    },
+    error: (error) => {
+      console.error('プロフィール読み込みエラー:', error);
     }
   });
 }
 
 function saveProfile() {
+  console.log('保存開始:', editForm.value);
+  
   if (profile.value) {
+    console.log('既存プロフィール更新:', profile.value.id);
     client.models.UserProfile.update({
       id: profile.value.id,
-      ...editForm.value
-    }).then(() => {
+      name: editForm.value.name || '名前未設定',
+      department: editForm.value.department,
+      section: editForm.value.section,
+      hobbyTags: editForm.value.hobbyTags,
+      profileImageUrl: editForm.value.profileImageUrl
+    }).then((result) => {
+      console.log('更新成功:', result);
       isEditing.value = false;
+    }).catch((error) => {
+      console.error('更新エラー:', error);
+      alert('プロフィールの更新に失敗しました');
     });
   } else {
+    console.log('新規プロフィール作成');
     client.models.UserProfile.create({
       userId: props.user.userId,
-      ...editForm.value
-    }).then(() => {
+      name: editForm.value.name || '名前未設定',
+      department: editForm.value.department,
+      section: editForm.value.section,
+      hobbyTags: editForm.value.hobbyTags,
+      profileImageUrl: editForm.value.profileImageUrl
+    }).then((result) => {
+      console.log('作成成功:', result);
       isEditing.value = false;
+    }).catch((error) => {
+      console.error('作成エラー:', error);
+      alert('プロフィールの作成に失敗しました');
     });
   }
 }
@@ -113,7 +143,8 @@ function startEditing() {
   if (profile.value) {
     editForm.value = {
       name: profile.value.name || '',
-      bio: profile.value.bio || '',
+      department: profile.value.department || '',
+      section: profile.value.section || '',
       hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null),
       profileImageUrl: profile.value.profileImageUrl || ''
     };
@@ -154,8 +185,13 @@ onUnmounted(() => {
         </div>
         
         <div style="margin-bottom: 1rem;">
-          <strong>自己紹介:</strong>
-          <p style="margin-top: 0.5rem;">{{ profile?.bio || '未設定' }}</p>
+          <strong>所属部署:</strong>
+          <p style="margin-top: 0.5rem;">
+            <span v-if="profile?.department || profile?.section">
+              {{ profile?.department || '未設定' }} / {{ profile?.section || '未設定' }}
+            </span>
+            <span v-else>未設定</span>
+          </p>
         </div>
         
         <div>
@@ -191,8 +227,13 @@ onUnmounted(() => {
           </div>
           
           <div class="form-group">
-            <label><strong>自己紹介:</strong></label>
-            <textarea v-model="editForm.bio" rows="4" placeholder="自己紹介を入力"></textarea>
+            <label><strong>部:</strong></label>
+            <input v-model="editForm.department" placeholder="部を入力" />
+          </div>
+          
+          <div class="form-group">
+            <label><strong>課/グループ:</strong></label>
+            <input v-model="editForm.section" placeholder="課/グループを入力" />
           </div>
           
           <div class="form-group">

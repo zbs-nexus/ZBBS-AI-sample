@@ -17,7 +17,8 @@ const schema = a.schema({
     .model({
       userId: a.string().required(),
       name: a.string().required(),
-      bio: a.string(),
+      department: a.string(),
+      section: a.string(),
       hobbyTags: a.string().array(),
       profileImageUrl: a.string(),
     })
