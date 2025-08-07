@@ -87,8 +87,8 @@ onMounted(() => {
       <p style="margin: 1rem 0;">{{ event.description }}</p>
       
       <div style="margin: 1rem 0;">
-        <p><strong>開催日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
-        <p v-if="event.location"><strong>開催場所:</strong> {{ event.location }}</p>
+        <p><strong>日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
+        <p v-if="event.location"><strong>場所:</strong> {{ event.location }}</p>
         <p><strong>参加者数:</strong> {{ participantCount }}{{ event.maxParticipants ? ` / ${event.maxParticipants}` : '' }}人</p>
       </div>
       
