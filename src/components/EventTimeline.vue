@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import type { Schema } from '../../amplify/data/resource';
 import { generateClient } from 'aws-amplify/data';
 
@@ -104,10 +104,6 @@ function createEvent() {
   });
 }
 
-function addTag() {
-  // タグ選択用のダイアログを表示する代わりに、選択式UIを使用
-}
-
 function deleteEvent(event: Schema['Event']['type'], clickEvent: Event) {
   clickEvent.stopPropagation();
   
@@ -176,10 +172,6 @@ function updateEvent() {
   });
 }
 
-function addEditTag() {
-  // タグ選択用のダイアログを表示する代わりに、選択式UIを使用
-}
-
 function toggleTag(tagName: string, isEdit = false) {
   const targetTags = isEdit ? editEvent.value.tags : newEvent.value.tags;
   const index = targetTags.indexOf(tagName);
@@ -203,8 +195,6 @@ const filteredEvents = computed(() => {
     event.tags?.some(tag => tag && tag.includes(searchTag.value))
   );
 });
-
-import { onUnmounted } from 'vue';
 
 onMounted(() => {
   loadEvents();

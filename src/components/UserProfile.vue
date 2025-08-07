@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import type { Schema } from '../../amplify/data/resource';
 import { generateClient } from 'aws-amplify/data';
 
@@ -19,15 +19,15 @@ const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
 const categories = ref<string[]>([]);
 const selectedHobbyCategory = ref<string>('');
 const isEditing = ref(false);
-let tagSubscription: any = null;
 const editForm = ref({
   name: '',
   bio: '',
   hobbyTags: [] as string[],
   profileImageUrl: ''
 });
-const selectedFile = ref<File | null>(null);
 const imagePreview = ref<string>('');
+
+let tagSubscription: any = null;
 
 function loadProfile() {
   client.models.UserProfile.observeQuery({
@@ -70,7 +70,6 @@ function handleImageSelect(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   if (file) {
-    selectedFile.value = file;
     const reader = new FileReader();
     reader.onload = (e) => {
       imagePreview.value = e.target?.result as string;
@@ -90,7 +89,6 @@ function toggleHobbyTag(tagName: string) {
 }
 
 function loadTagMaster() {
-  // 既存のsubscriptionをクリア
   if (tagSubscription) {
     tagSubscription.unsubscribe();
   }
@@ -99,23 +97,15 @@ function loadTagMaster() {
     filter: { isActive: { eq: true } }
   }).subscribe({
     next: ({ items }) => {
-      console.log('取得したタグデータ:', items);
       tagMaster.value = items.sort((a, b) => a.name.localeCompare(b.name));
-      // すべてのカテゴリーを表示
       const allCategories = [...new Set(items.map(item => item.category))];
-      console.log('すべてのカテゴリー:', allCategories);
       categories.value = allCategories.sort();
-      console.log('プロフィール用カテゴリー:', categories.value);
     }
   });
 }
 
 function getHobbyTagsByCategory(category: string) {
   return tagMaster.value.filter(tag => tag.category === category);
-}
-
-function removeHobbyTag(index: number) {
-  editForm.value.hobbyTags.splice(index, 1);
 }
 
 function startEditing() {
@@ -135,9 +125,6 @@ onMounted(() => {
   loadProfile();
   loadTagMaster();
 });
-
-// コンポーネントがアンマウントされる時にsubscriptionをクリア
-import { onUnmounted } from 'vue';
 
 onUnmounted(() => {
   if (tagSubscription) {
