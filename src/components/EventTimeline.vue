@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import type { Schema } from '../../amplify/data/resource';
 import { generateClient } from 'aws-amplify/data';
 
@@ -58,12 +58,12 @@ function loadTagMaster() {
   }
   
   tagSubscription = client.models.TagMaster.observeQuery({
-    filter: { isActive: { eq: true } }
+    filter: { isActive: { eq: "true" } }
   }).subscribe({
     next: ({ items }) => {
       tagMaster.value = items.sort((a, b) => a.name.localeCompare(b.name));
       // カテゴリー一覧を取得
-      const uniqueCategories = [...new Set(items.map(item => item.category))];
+      const uniqueCategories = Array.from(new Set(items.map(item => item.category)));
       categories.value = uniqueCategories.sort();
     }
   });
@@ -102,6 +102,10 @@ function createEvent() {
     console.error('イベント作成エラー:', error);
     alert('イベント作成に失敗しました');
   });
+}
+
+function addTag() {
+  // タグ選択用のダイアログを表示する代わりに、選択式UIを使用
 }
 
 function deleteEvent(event: Schema['Event']['type'], clickEvent: Event) {
@@ -172,6 +176,10 @@ function updateEvent() {
   });
 }
 
+function addEditTag() {
+  // タグ選択用のダイアログを表示する代わりに、選択式UIを使用
+}
+
 function toggleTag(tagName: string, isEdit = false) {
   const targetTags = isEdit ? editEvent.value.tags : newEvent.value.tags;
   const index = targetTags.indexOf(tagName);
@@ -195,6 +203,8 @@ const filteredEvents = computed(() => {
     event.tags?.some(tag => tag && tag.includes(searchTag.value))
   );
 });
+
+import { onUnmounted } from 'vue';
 
 onMounted(() => {
   loadEvents();
