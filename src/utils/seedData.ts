@@ -172,6 +172,7 @@ const initialTags = [
   { name: '海外旅行', category: '旅行・アウトドア', isActive: true },
   { name: 'バックパッカー', category: '旅行・アウトドア', isActive: true },
   { name: '温泉', category: '旅行・アウトドア', isActive: true },
+  { name: 'サウナ', category: '旅行・アウトドア', isActive: true },
   { name: 'グルメ旅', category: '旅行・アウトドア', isActive: true },
   { name: '武将巡り', category: '旅行・アウトドア', isActive: true },
   { name: '神社仏閣巡り', category: '旅行・アウトドア', isActive: true },
