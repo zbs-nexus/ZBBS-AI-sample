@@ -14,6 +14,7 @@ const emit = defineEmits<{
 }>();
 
 const profile = ref<Schema['UserProfile']['type'] | null>(null);
+const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
 const isEditing = ref(false);
 const editForm = ref({
   name: '',
@@ -75,11 +76,23 @@ function handleImageSelect(event: Event) {
   }
 }
 
-function addHobbyTag() {
-  const tag = prompt('趣味タグを入力してください');
-  if (tag && !editForm.value.hobbyTags.includes(tag)) {
-    editForm.value.hobbyTags.push(tag);
+function toggleHobbyTag(tagName: string) {
+  const index = editForm.value.hobbyTags.indexOf(tagName);
+  if (index > -1) {
+    editForm.value.hobbyTags.splice(index, 1);
+  } else {
+    editForm.value.hobbyTags.push(tagName);
   }
+}
+
+function loadTagMaster() {
+  client.models.TagMaster.observeQuery({
+    filter: { isActive: { eq: true } }
+  }).subscribe({
+    next: ({ items }) => {
+      tagMaster.value = items.filter(item => item.category === 'hobby').sort((a, b) => a.name.localeCompare(b.name));
+    }
+  });
 }
 
 function removeHobbyTag(index: number) {
@@ -101,6 +114,7 @@ function startEditing() {
 
 onMounted(() => {
   loadProfile();
+  loadTagMaster();
 });
 </script>
 
@@ -171,12 +185,21 @@ onMounted(() => {
           
           <div class="form-group">
             <label><strong>趣味タグ:</strong></label>
-            <button @click="addHobbyTag" type="button">タグ追加</button>
+            <div style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
+              <div v-for="tag in tagMaster" :key="tag.id" style="margin-bottom: 0.5rem;">
+                <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+                  <input type="checkbox" 
+                         :checked="editForm.hobbyTags.includes(tag.name)" 
+                         @change="toggleHobbyTag(tag.name)" 
+                         style="margin-right: 0.5rem; width: auto;" />
+                  <span>{{ tag.name }}</span>
+                </label>
+              </div>
+            </div>
             <div v-if="editForm.hobbyTags.length" style="margin-top: 0.5rem;">
               <span v-for="(tag, index) in editForm.hobbyTags" :key="index" 
-                    style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block; cursor: pointer;"
-                    @click="removeHobbyTag(index)">
-                {{ tag }} ×
+                    style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block;">
+                {{ tag }}
               </span>
             </div>
           </div>

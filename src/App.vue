@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Authenticator } from "@aws-amplify/ui-vue";
 import "@aws-amplify/ui-vue/styles.css";
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import EventTimeline from './components/EventTimeline.vue';
 import EventDetail from './components/EventDetail.vue';
 import UserProfile from './components/UserProfile.vue';
+import { seedTagMaster } from './utils/seedData';
 
 const currentView = ref('timeline');
 const selectedEventId = ref<string | null>(null);
@@ -21,6 +22,11 @@ function showProfile() {
 function showTimeline() {
   currentView.value = 'timeline';
 }
+
+onMounted(() => {
+  // 初期データを投入
+  seedTagMaster();
+});
 </script>
 
 <template>

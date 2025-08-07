@@ -29,6 +29,14 @@ const schema = a.schema({
       userId: a.string().required(),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
+    
+  TagMaster: a
+    .model({
+      name: a.string().required(),
+      category: a.string().required(),
+      isActive: a.boolean().default(true),
+    })
+    .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

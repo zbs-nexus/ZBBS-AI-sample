@@ -14,6 +14,7 @@ const emit = defineEmits<{
 }>();
 
 const events = ref<Array<Schema['Event']['type']>>([]);
+const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
 const searchTag = ref('');
 const showCreateForm = ref(false);
 const editingEventId = ref<string | null>(null);
@@ -42,6 +43,16 @@ function loadEvents() {
     },
     error: (error) => {
       console.error('イベントデータ取得エラー:', error);
+    }
+  });
+}
+
+function loadTagMaster() {
+  client.models.TagMaster.observeQuery({
+    filter: { isActive: { eq: true } }
+  }).subscribe({
+    next: ({ items }) => {
+      tagMaster.value = items.sort((a, b) => a.name.localeCompare(b.name));
     }
   });
 }
@@ -78,10 +89,7 @@ function createEvent() {
 }
 
 function addTag() {
-  const tag = prompt('タグを入力してください');
-  if (tag && tag.trim() && !newEvent.value.tags.includes(tag)) {
-    newEvent.value.tags.push(tag);
-  }
+  // タグ選択用のダイアログを表示する代わりに、選択式UIを使用
 }
 
 function deleteEvent(event: Schema['Event']['type'], clickEvent: Event) {
@@ -153,9 +161,16 @@ function updateEvent() {
 }
 
 function addEditTag() {
-  const tag = prompt('タグを入力してください');
-  if (tag && tag.trim() && !editEvent.value.tags.includes(tag)) {
-    editEvent.value.tags.push(tag);
+  // タグ選択用のダイアログを表示する代わりに、選択式UIを使用
+}
+
+function toggleTag(tagName: string, isEdit = false) {
+  const targetTags = isEdit ? editEvent.value.tags : newEvent.value.tags;
+  const index = targetTags.indexOf(tagName);
+  if (index > -1) {
+    targetTags.splice(index, 1);
+  } else {
+    targetTags.push(tagName);
   }
 }
 
@@ -175,6 +190,7 @@ const filteredEvents = computed(() => {
 
 onMounted(() => {
   loadEvents();
+  loadTagMaster();
 });
 </script>
 
@@ -218,15 +234,26 @@ onMounted(() => {
           </div>
           <div class="form-group">
             <label>タグ *</label>
-            <button @click="addTag" type="button">タグ追加</button>
+            <div style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
+              <div v-for="tag in tagMaster" :key="tag.id" style="margin-bottom: 0.5rem;">
+                <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+                  <input type="checkbox" 
+                         :checked="newEvent.tags.includes(tag.name)" 
+                         @change="toggleTag(tag.name)" 
+                         style="margin-right: 0.5rem; width: auto;" />
+                  <span>{{ tag.name }}</span>
+                  <span style="margin-left: 0.5rem; font-size: 0.7rem; color: #666;">({{ tag.category }})</span>
+                </label>
+              </div>
+            </div>
             <div v-if="newEvent.tags.length" style="margin-top: 0.5rem;">
               <span v-for="(tag, index) in newEvent.tags" :key="index" 
-                    style="background: #e0e0e0; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
+                    style="background: #007bff; color: white; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
                 {{ tag }}
               </span>
             </div>
             <div v-else style="margin-top: 0.5rem; color: #666; font-size: 0.8rem;">
-              タグを少なくとも1つ追加してください
+              タグを少なくとも1つ選択してください
             </div>
           </div>
           <div class="form-group">
@@ -265,15 +292,27 @@ onMounted(() => {
             <input v-model="editEvent.location" placeholder="場所" />
             <input v-model="editEvent.maxParticipants" type="number" placeholder="最大参加者数" />
             <div>
-              <button @click="addEditTag">タグ追加 *</button>
+              <label><strong>タグ *</strong></label>
+              <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 0.5rem; background: white; margin-top: 0.5rem;">
+                <div v-for="tag in tagMaster" :key="tag.id" style="margin-bottom: 0.5rem;">
+                  <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+                    <input type="checkbox" 
+                           :checked="editEvent.tags.includes(tag.name)" 
+                           @change="toggleTag(tag.name, true)" 
+                           style="margin-right: 0.5rem;" />
+                    <span>{{ tag.name }}</span>
+                    <span style="margin-left: 0.5rem; font-size: 0.7rem; color: #666;">({{ tag.category }})</span>
+                  </label>
+                </div>
+              </div>
               <div v-if="editEvent.tags.length" style="margin-top: 0.5rem;">
                 <span v-for="(tag, index) in editEvent.tags" :key="index" 
-                      style="background: #e0e0e0; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
+                      style="background: #007bff; color: white; padding: 0.2rem 0.5rem; margin-right: 0.5rem; border-radius: 12px; font-size: 0.8rem;">
                   {{ tag }}
                 </span>
               </div>
               <div v-else style="margin-top: 0.5rem; color: #666; font-size: 0.8rem;">
-                タグを少なくとも1つ追加してください
+                タグを少なくとも1つ選択してください
               </div>
             </div>
             <div style="display: flex; gap: 0.5rem;">
