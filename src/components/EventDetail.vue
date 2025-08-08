@@ -84,7 +84,7 @@ onMounted(() => {
     
     <div v-if="event" class="card" style="padding: 0.75rem;">
       <h2 style="margin: 0 0 0.5rem 0; font-size: 1.3rem;">{{ event.title }}</h2>
-      <p style="margin: 0.5rem 0; font-size: 0.9rem; line-height: 1.4;">{{ event.description }}</p>
+      <p style="margin: 0.5rem 0; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap;">{{ event.description }}</p>
       
       <div style="margin: 0.5rem 0;">
         <p style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
