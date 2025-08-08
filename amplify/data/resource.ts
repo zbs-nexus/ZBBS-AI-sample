@@ -5,6 +5,7 @@ const schema = a.schema({
     .model({
       title: a.string().required(),
       description: a.string(),
+      targetAudience: a.string(),
       date: a.datetime().required(),
       location: a.string(),
       maxParticipants: a.integer(),
@@ -19,6 +20,7 @@ const schema = a.schema({
       name: a.string().required(),
       department: a.string(),
       section: a.string(),
+      clubId: a.string(),
       hobbyTags: a.string().array(),
       profileImageUrl: a.string(),
     })
@@ -35,6 +37,14 @@ const schema = a.schema({
     .model({
       name: a.string().required(),
       category: a.string().required(),
+      isActive: a.boolean().default(true),
+    })
+    .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
+    
+  ClubMaster: a
+    .model({
+      name: a.string().required(),
+      description: a.string(),
       isActive: a.boolean().default(true),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),

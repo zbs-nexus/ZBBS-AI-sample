@@ -15,6 +15,7 @@ const emit = defineEmits<{
 
 const events = ref<Array<Schema['Event']['type']>>([]);
 const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
+const clubMaster = ref<Array<Schema['ClubMaster']['type']>>([]);
 const categories = ref<string[]>([]);
 const selectedCategory = ref<string>('');
 const selectedEditCategory = ref<string>('');
@@ -25,6 +26,7 @@ let tagSubscription: any = null;
 const newEvent = ref({
   title: '',
   description: '',
+  targetAudience: '',
   date: '',
   location: '',
   maxParticipants: 10,
@@ -33,11 +35,22 @@ const newEvent = ref({
 const editEvent = ref({
   title: '',
   description: '',
+  targetAudience: '',
   date: '',
   location: '',
   maxParticipants: 10,
   tags: [] as string[]
 });
+
+function loadClubMaster() {
+  client.models.ClubMaster.observeQuery({
+    filter: { isActive: { eq: true } }
+  }).subscribe({
+    next: ({ items }) => {
+      clubMaster.value = items.sort((a, b) => a.name.localeCompare(b.name));
+    }
+  });
+}
 
 function loadEvents() {
   client.models.Event.observeQuery().subscribe({
@@ -87,6 +100,7 @@ function createEvent() {
   const eventData = {
     title: newEvent.value.title,
     description: newEvent.value.description,
+    targetAudience: newEvent.value.targetAudience,
     date: new Date(newEvent.value.date).toISOString(),
     location: newEvent.value.location,
     maxParticipants: newEvent.value.maxParticipants,
@@ -97,7 +111,7 @@ function createEvent() {
   client.models.Event.create(eventData).then((result) => {
     console.log('イベント作成成功:', result);
     showCreateForm.value = false;
-    newEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
+    newEvent.value = { title: '', description: '', targetAudience: '', date: '', location: '', maxParticipants: 10, tags: [] };
   }).catch((error) => {
     console.error('イベント作成エラー:', error);
     alert('イベント作成に失敗しました');
@@ -134,6 +148,7 @@ function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
   editEvent.value = {
     title: event.title || '',
     description: event.description || '',
+    targetAudience: event.targetAudience || '',
     date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
     location: event.location || '',
     maxParticipants: event.maxParticipants || 10,
@@ -156,6 +171,7 @@ function updateEvent() {
     id: editingEventId.value!,
     title: editEvent.value.title,
     description: editEvent.value.description,
+    targetAudience: editEvent.value.targetAudience,
     date: new Date(editEvent.value.date).toISOString(),
     location: editEvent.value.location,
     maxParticipants: editEvent.value.maxParticipants,
@@ -165,7 +181,7 @@ function updateEvent() {
   client.models.Event.update(eventData).then((result) => {
     console.log('イベント更新成功:', result);
     editingEventId.value = null;
-    editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
+    editEvent.value = { title: '', description: '', targetAudience: '', date: '', location: '', maxParticipants: 10, tags: [] };
   }).catch((error) => {
     console.error('イベント更新エラー:', error);
     alert('イベント更新に失敗しました');
@@ -184,7 +200,7 @@ function toggleTag(tagName: string, isEdit = false) {
 
 function cancelEdit() {
   editingEventId.value = null;
-  editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
+  editEvent.value = { title: '', description: '', targetAudience: '', date: '', location: '', maxParticipants: 10, tags: [] };
 }
 
 
@@ -199,6 +215,7 @@ const filteredEvents = computed(() => {
 onMounted(() => {
   loadEvents();
   loadTagMaster();
+  loadClubMaster();
 });
 
 onUnmounted(() => {
@@ -233,6 +250,13 @@ onUnmounted(() => {
           <div class="form-group">
             <label>説明</label>
             <textarea v-model="newEvent.description" placeholder="説明" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>対象者</label>
+            <select v-model="newEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+              <option value="">誰でも歓迎</option>
+              <option v-for="club in clubMaster" :key="club.id" :value="club.name + '所属'">{{ club.name }}所属</option>
+            </select>
           </div>
           <div class="form-group">
             <label>開催日時 *</label>
@@ -307,6 +331,10 @@ onUnmounted(() => {
           <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
             <input v-model="editEvent.title" placeholder="イベント名" required />
             <textarea v-model="editEvent.description" placeholder="説明" rows="3"></textarea>
+            <select v-model="editEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+              <option value="">誰でも歓迎</option>
+              <option v-for="club in clubMaster" :key="club.id" :value="club.name + '所属'">{{ club.name }}所属</option>
+            </select>
             <input v-model="editEvent.date" type="datetime-local" required />
             <input v-model="editEvent.location" placeholder="開催場所" />
             <input v-model="editEvent.maxParticipants" type="number" placeholder="最大参加者数" />
@@ -352,6 +380,7 @@ onUnmounted(() => {
         
         <div v-else style="cursor: pointer;">
           <h3 style="font-size: 1.3rem; font-weight: 700; margin: 0 0 0.3rem 0;">{{ event.title }}</h3>
+          <p v-if="event.targetAudience" style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>対象者:</strong> {{ event.targetAudience }}</p>
           <p style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
           <p v-if="event.location" style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催場所:</strong> {{ event.location }}</p>
           <div v-if="event.tags?.length" style="margin-top: 0.3rem;">

@@ -5,7 +5,7 @@ import { ref, onMounted } from 'vue';
 import EventTimeline from './components/EventTimeline.vue';
 import EventDetail from './components/EventDetail.vue';
 import UserProfile from './components/UserProfile.vue';
-import { seedTagMaster } from './utils/seedData';
+import { seedTagMaster, seedClubMaster } from './utils/seedData';
 
 const currentView = ref('timeline');
 const selectedEventId = ref<string | null>(null);
@@ -26,6 +26,7 @@ function showTimeline() {
 onMounted(() => {
   // 初期データを投入
   seedTagMaster();
+  seedClubMaster();
 });
 </script>
 
