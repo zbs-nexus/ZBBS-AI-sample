@@ -6,6 +6,33 @@ import EventTimeline from './components/EventTimeline.vue';
 import EventDetail from './components/EventDetail.vue';
 import UserProfile from './components/UserProfile.vue';
 import { seedTagMaster } from './utils/seedData';
+import { I18n } from 'aws-amplify/utils';
+
+// 日本語翻訳を設定
+const jaTranslations = {
+  'Sign In': 'サインイン',
+  'Sign Up': 'サインアップ',
+  'Email': 'メールアドレス',
+  'Password': 'パスワード',
+  'Confirm Password': 'パスワード確認',
+  'Sign in': 'サインイン',
+  'Create Account': 'アカウント作成',
+  'Forgot your password?': 'パスワードをお忘れですか？',
+  'Reset password': 'パスワードリセット',
+  'Send code': 'コード送信',
+  'Code': '確認コード',
+  'Confirm': '確認',
+  'Back to Sign In': 'サインインに戻る',
+  'Have an account?': 'アカウントをお持ちですか？',
+  'No account?': 'アカウントをお持ちでないですか？',
+  'Sign Out': 'サインアウト'
+};
+
+I18n.putVocabularies({
+  ja: jaTranslations
+});
+
+I18n.setLanguage('ja');
 
 const currentView = ref('timeline');
 const selectedEventId = ref<string | null>(null);
