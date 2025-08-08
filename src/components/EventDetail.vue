@@ -119,10 +119,10 @@ onMounted(() => {
         </span>
       </div>
       
-      <div style="margin-top: 1rem; padding-bottom: 2rem;">
+      <div style="margin-top: 2rem; padding-bottom: 2rem;">
         <button v-if="!isParticipating && canJoin" 
                 @click="joinEvent"
-                style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #4CAF50; border: none; border-radius: 6px; color: white; cursor: pointer;">
           参加する
         </button>
         
