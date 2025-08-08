@@ -166,10 +166,24 @@ onUnmounted(() => {
 
 <template>
   <div style="height: 100vh; overflow-y: auto; padding: 1rem; box-sizing: border-box;">
-    <button @click="emit('back')" style="margin-bottom: 1rem;">← 戻る</button>
+    <button @click="emit('back')" 
+            style="margin-bottom: 1rem; padding: 0.3rem 0.6rem; font-size: 0.8rem; 
+                   background: #ffffff; color: #333333; border: 2px solid #333333; border-radius: 6px; 
+                   cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+            @mouseover="($event.target as HTMLElement).style.background = '#f8f9fa'"
+            @mouseout="($event.target as HTMLElement).style.background = '#ffffff'">
+      ← 戻る
+    </button>
     
     <div class="card" style="position: relative;">
-      <button v-if="!isEditing" @click="startEditing" style="position: absolute; top: 1rem; right: 1rem;">編集</button>
+      <button v-if="!isEditing" @click="startEditing" 
+              style="position: absolute; top: 1rem; right: 1rem; padding: 0.3rem 0.6rem; font-size: 0.8rem; 
+                     background: #ffffff; color: #333333; border: 2px solid #333333; border-radius: 6px; 
+                     cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+              @mouseover="($event.target as HTMLElement).style.background = '#f8f9fa'"
+              @mouseout="($event.target as HTMLElement).style.background = '#ffffff'">
+        編集
+      </button>
       
       <div v-if="!isEditing" style="margin-top: 0;">
         <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
@@ -272,7 +286,7 @@ onUnmounted(() => {
         </div>
       </div>
       
-      <button @click="props.signOut" 
+      <button v-if="!isEditing" @click="props.signOut" 
               style="position: absolute; bottom: 1rem; right: 1rem; padding: 0.5rem 1rem; font-size: 0.9rem; background: #dc3545; border: none; border-radius: 8px; color: white; cursor: pointer; transition: all 0.3s ease;"
               @mouseover="($event.target as HTMLElement).style.background = '#c82333'"
               @mouseout="($event.target as HTMLElement).style.background = '#dc3545'">
