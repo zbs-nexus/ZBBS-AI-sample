@@ -242,3 +242,31 @@ export async function seedTagMaster() {
     isSeeding = false;
   }
 }
+
+// 新しいタグを追加する関数
+export async function addNewTags() {
+  const newTags = [
+    // 新しく追加したいタグをここに記述
+    { name: '新しい趣味1', category: '趣味・エンターテイメント', isActive: true },
+    { name: '新しい趣味2', category: 'スポーツ・健康', isActive: true },
+  ];
+  
+  try {
+    for (const tag of newTags) {
+      // 既存チェック
+      const { data: existing } = await client.models.TagMaster.list({
+        filter: { name: { eq: tag.name }, category: { eq: tag.category } }
+      });
+      
+      if (existing.length === 0) {
+        await client.models.TagMaster.create(tag);
+        console.log(`新しいタグを追加: ${tag.name}`);
+      } else {
+        console.log(`タグは既に存在: ${tag.name}`);
+      }
+    }
+    console.log('新しいタグの追加が完了しました');
+  } catch (error) {
+    console.error('新しいタグ追加エラー:', error);
+  }
+}

@@ -5,7 +5,7 @@ import { ref, onMounted } from 'vue';
 import EventTimeline from './components/EventTimeline.vue';
 import EventDetail from './components/EventDetail.vue';
 import UserProfile from './components/UserProfile.vue';
-import { seedTagMaster } from './utils/seedData';
+import { seedTagMaster, addNewTags } from './utils/seedData';
 import { I18n } from 'aws-amplify/utils';
 
 // 日本語翻訳を設定
@@ -53,6 +53,8 @@ function showTimeline() {
 onMounted(() => {
   // 初期データを投入
   seedTagMaster();
+  // 新しいタグを追加（必要な時のみコメントアウトを外す）
+  // addNewTags();
 });
 </script>
 
