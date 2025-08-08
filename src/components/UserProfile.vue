@@ -278,7 +278,8 @@ onUnmounted(() => {
             </div>
             <div v-if="editForm.hobbyTags.length" style="margin-top: 0.5rem;">
               <span v-for="(tag, index) in editForm.hobbyTags" :key="index" 
-                    style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block;">
+                    @click="toggleHobbyTag(tag)"
+                    style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block; cursor: pointer;">
                 {{ tag }}
               </span>
             </div>
