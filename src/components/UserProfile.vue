@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import type { Schema } from '../../amplify/data/resource';
 import { generateClient } from 'aws-amplify/data';
+import { generateUserProfileId } from '../utils/idGenerator';
 
 const client = generateClient<Schema>();
 
@@ -58,7 +59,7 @@ function loadProfile() {
   });
 }
 
-function saveProfile() {
+async function saveProfile() {
   console.log('保存開始:', editForm.value);
   
   if (profile.value) {
@@ -79,7 +80,9 @@ function saveProfile() {
     });
   } else {
     console.log('新規プロフィール作成');
+    const customId = await generateUserProfileId();
     client.models.UserProfile.create({
+      id: customId,
       userId: props.user.userId,
       name: editForm.value.name || '名前未設定',
       department: editForm.value.department,

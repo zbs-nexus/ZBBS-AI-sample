@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import type { Schema } from '../../amplify/data/resource';
 import { generateClient } from 'aws-amplify/data';
+import { generateEventId } from '../utils/idGenerator';
 
 const client = generateClient<Schema>();
 
@@ -73,7 +74,7 @@ function getTagsByCategory(category: string) {
   return tagMaster.value.filter(tag => tag.category === category);
 }
 
-function createEvent() {
+async function createEvent() {
   if (!newEvent.value.title || !newEvent.value.date) {
     alert('イベント名と開催日時は必須です');
     return;
@@ -84,7 +85,9 @@ function createEvent() {
     return;
   }
   
+  const customId = await generateEventId();
   const eventData = {
+    id: customId,
     title: newEvent.value.title,
     description: newEvent.value.description,
     date: new Date(newEvent.value.date).toISOString(),

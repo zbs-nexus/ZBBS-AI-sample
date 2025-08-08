@@ -38,6 +38,13 @@ const schema = a.schema({
       isActive: a.boolean().default(true),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
+    
+  Counter: a
+    .model({
+      type: a.string().required(),
+      currentValue: a.integer().default(0),
+    })
+    .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

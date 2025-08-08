@@ -1,5 +1,6 @@
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../../amplify/data/resource';
+import { generateTagId } from './idGenerator';
 
 const client = generateClient<Schema>();
 
@@ -232,7 +233,11 @@ export async function seedTagMaster() {
     );
     
     for (const tag of uniqueTags) {
-      await client.models.TagMaster.create(tag);
+      const customId = await generateTagId(tag.category);
+      await client.models.TagMaster.create({
+        id: customId,
+        ...tag
+      });
     }
     
     console.log(`タグマスタの初期化が完了しました（${uniqueTags.length}件）`);
@@ -259,7 +264,11 @@ export async function addNewTags() {
       });
       
       if (existing.length === 0) {
-        await client.models.TagMaster.create(tag);
+        const customId = await generateTagId(tag.category);
+        await client.models.TagMaster.create({
+          id: customId,
+          ...tag
+        });
         console.log(`新しいタグを追加: ${tag.name}`);
       } else {
         console.log(`タグは既に存在: ${tag.name}`);

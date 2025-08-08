@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import type { Schema } from '../../amplify/data/resource';
 import { generateClient } from 'aws-amplify/data';
+import { generateParticipantId } from '../utils/idGenerator';
 
 const client = generateClient<Schema>();
 
@@ -55,10 +56,12 @@ function loadParticipantProfiles(participantList: Array<Schema['EventParticipant
   });
 }
 
-function joinEvent() {
+async function joinEvent() {
   if (!props.eventId || !canJoin.value) return;
   
+  const customId = await generateParticipantId();
   client.models.EventParticipant.create({
+    id: customId,
     eventId: props.eventId,
     userId: props.user.userId
   });
