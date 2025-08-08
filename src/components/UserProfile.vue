@@ -62,6 +62,12 @@ function loadProfile() {
 async function saveProfile() {
   console.log('保存開始:', editForm.value);
   
+  // 必須項目のチェック
+  if (!editForm.value.name || !editForm.value.department || !editForm.value.section || editForm.value.hobbyTags.length === 0) {
+    alert('すべての項目（名前、部、課、趣味タグ）を入力してください。');
+    return;
+  }
+  
   if (profile.value) {
     console.log('既存プロフィール更新:', profile.value.id);
     client.models.UserProfile.update({

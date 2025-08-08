@@ -19,6 +19,7 @@ const event = ref<Schema['Event']['type'] | null>(null);
 const participants = ref<Array<Schema['EventParticipant']['type']>>([]);
 const participantProfiles = ref<Array<Schema['UserProfile']['type']>>([]);
 const isParticipating = ref(false);
+const userProfile = ref<Schema['UserProfile']['type'] | null>(null);
 
 const participantCount = computed(() => participants.value.length);
 const canJoin = computed(() => 
@@ -43,6 +44,24 @@ function loadEvent() {
   });
 }
 
+function loadUserProfile() {
+  client.models.UserProfile.list({
+    filter: { userId: { eq: props.user.userId } }
+  }).then(({ data }) => {
+    userProfile.value = data.length > 0 ? data[0] : null;
+  });
+}
+
+function isProfileComplete(profile: Schema['UserProfile']['type'] | null): boolean {
+  if (!profile) return false;
+  
+  return !!(profile.name && 
+           profile.department && 
+           profile.section && 
+           profile.hobbyTags && 
+           profile.hobbyTags.length > 0);
+}
+
 function loadParticipantProfiles(participantList: Array<Schema['EventParticipant']['type']>) {
   const userIds = participantList.map(p => p.userId);
   
@@ -58,6 +77,11 @@ function loadParticipantProfiles(participantList: Array<Schema['EventParticipant
 
 async function joinEvent() {
   if (!props.eventId || !canJoin.value) return;
+  
+  if (!isProfileComplete(userProfile.value)) {
+    alert('イベントに参加するには、プロフィールのすべての項目（名前、部、課、趣味タグ）を設定してください。');
+    return;
+  }
   
   const customId = await generateParticipantId();
   client.models.EventParticipant.create({
@@ -78,6 +102,7 @@ function leaveEvent() {
 
 onMounted(() => {
   loadEvent();
+  loadUserProfile();
 });
 </script>
 
