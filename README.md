@@ -1,4 +1,4 @@
-## AWS Amplify Vue.js Starter Template
+## AWS Amplify Vue.js Starter Template1
 
 This repository provides a starter template for creating applications using Vue.js and AWS Amplify, emphasizing easy setup for authentication, API, and database capabilities.
 
