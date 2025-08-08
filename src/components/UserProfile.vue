@@ -193,13 +193,12 @@ onUnmounted(() => {
           <div v-else style="width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 3px solid #667eea;">
             <span style="color: #666; font-size: 0.8rem;">画像なし</span>
           </div>
-          <div>
-            <strong>名前:</strong> {{ profile?.name || '未設定' }}
+          <div style="font-size: 1.2rem; font-weight: bold;">
+            {{ profile?.name || '未設定' }}
           </div>
         </div>
         
         <div style="margin-bottom: 1rem;">
-          <strong>所属部署:</strong>
           <p style="margin-top: 0.5rem;">
             <span v-if="profile?.department || profile?.section">
               {{ profile?.department || '未設定' }} / {{ profile?.section || '未設定' }}
@@ -209,10 +208,9 @@ onUnmounted(() => {
         </div>
         
         <div>
-          <strong>趣味タグ:</strong>
           <div v-if="profile?.hobbyTags?.length" style="margin-top: 0.5rem;">
             <span v-for="(tag, index) in profile.hobbyTags" :key="index" 
-                  style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block;">
+                  style="background: #28a745; color: white; padding: 0.2rem 0.4rem; margin-right: 0.3rem; margin-bottom: 0.3rem; border-radius: 10px; font-size: 0.75rem; display: inline-block;">
               {{ tag }}
             </span>
           </div>
