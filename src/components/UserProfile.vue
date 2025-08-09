@@ -30,6 +30,7 @@ const editForm = ref({
   profileImageFile: null as File | null
 });
 const imagePreview = ref<string>('');
+const displayImageUrl = ref<string>('');
 
 let tagSubscription: any = null;
 
@@ -52,6 +53,7 @@ function loadProfile() {
           profileImageFile: null
         };
         imagePreview.value = profile.value.profileImageUrl || '';
+        loadDisplayImage(profile.value.profileImageUrl || '');
       } else {
         console.log('プロフィールが見つかりません');
       }
@@ -85,8 +87,7 @@ async function saveProfile() {
         }
       }).result;
       
-      const urlResult = await getUrl({ key: fileName });
-      imageUrl = urlResult.url.toString();
+      imageUrl = fileName; // S3キーのみ保存
     } catch (error) {
       console.error('画像アップロードエラー:', error);
       alert('画像のアップロードに失敗しました');
@@ -176,6 +177,21 @@ function getHobbyTagsByCategory(category: string) {
   return tagMaster.value.filter(tag => tag.category === category);
 }
 
+async function loadDisplayImage(imageKey: string) {
+  if (!imageKey) {
+    displayImageUrl.value = '';
+    return;
+  }
+  
+  try {
+    const result = await getUrl({ key: imageKey });
+    displayImageUrl.value = result.url.toString();
+  } catch (error) {
+    console.error('画像URL取得エラー:', error);
+    displayImageUrl.value = '';
+  }
+}
+
 function startEditing() {
   isEditing.value = true;
   if (profile.value) {
@@ -187,7 +203,7 @@ function startEditing() {
       profileImageUrl: profile.value.profileImageUrl || '',
       profileImageFile: null
     };
-    imagePreview.value = profile.value.profileImageUrl || '';
+    imagePreview.value = displayImageUrl.value;
   }
 }
 
@@ -226,8 +242,8 @@ onUnmounted(() => {
       
       <div v-if="!isEditing" style="margin-top: 0;">
         <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
-          <div v-if="profile?.profileImageUrl" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid #667eea;">
-            <img :src="profile.profileImageUrl" alt="プロフィール画像" style="width: 100%; height: 100%; object-fit: cover;" />
+          <div v-if="displayImageUrl" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid #667eea;">
+            <img :src="displayImageUrl" alt="プロフィール画像" style="width: 100%; height: 100%; object-fit: cover;" />
           </div>
           <div v-else style="width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 3px solid #667eea;">
             <span style="color: #666; font-size: 0.8rem;">画像なし</span>
