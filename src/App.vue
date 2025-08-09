@@ -62,7 +62,7 @@ onMounted(() => {
   <main style="height: 100vh; display: flex; flex-direction: column;">
     <authenticator>
       <template v-slot="{ signOut, user }">
-        <nav style="padding: 1rem; border-bottom: 1px solid #ccc; display: flex; gap: 0.5rem; align-items: center; background: white; position: sticky; top: 0; z-index: 100;">
+        <nav style="padding: 1rem; border-bottom: 1px solid #ccc; display: flex; gap: 0.5rem; align-items: center; background: white; position: sticky; top: 0; z-index: 100; border-radius: 16px;">
           <img src="/src/assets/logo.png" alt="ZBBS部" style="height: 80px; width: auto;" />
           <button @click="showTimeline">イベント一覧</button>
           <button @click="showProfile">プロフィール</button>

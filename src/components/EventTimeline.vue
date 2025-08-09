@@ -214,7 +214,7 @@ onUnmounted(() => {
 <template>
   <div style="height: 100%; display: flex; flex-direction: column;">
     <!-- 固定ヘッダー部分 -->
-    <div style="padding: 0.3rem 0.5rem; border-bottom: 1px solid #ddd; background: white;">
+    <div style="padding: 0.3rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); background: transparent;">
       <div style="margin-bottom: 0.5rem; display: flex; gap: 0.5rem; align-items: center;">
         <input 
           v-model="searchTag" 
