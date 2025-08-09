@@ -355,7 +355,7 @@ onUnmounted(() => {
         
         <div v-else style="cursor: pointer;">
           <h3 style="font-size: 1.3rem; font-weight: 700; margin: 0 0 0.3rem 0;">{{ event.title }}</h3>
-          <p style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
+          <p style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催日時:</strong> {{ new Date(event.date).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</p>
           <p v-if="event.location" style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催場所:</strong> {{ event.location }}</p>
           <div v-if="event.tags?.length" style="margin-top: 0.3rem;">
             <span v-for="(tag, index) in event.tags" :key="index" 

@@ -115,7 +115,7 @@ onMounted(() => {
       <p style="margin: 0.5rem 0; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap;">{{ event.description }}</p>
       
       <div style="margin: 0.5rem 0;">
-        <p style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>日時:</strong> {{ new Date(event.date).toLocaleString() }}</p>
+        <p style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>日時:</strong> {{ new Date(event.date).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</p>
         <p v-if="event.location" style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>場所:</strong> {{ event.location }}</p>
         <p style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>参加者数:</strong> {{ participantCount }}{{ event.maxParticipants ? ` / ${event.maxParticipants}` : '' }}人</p>
       </div>
