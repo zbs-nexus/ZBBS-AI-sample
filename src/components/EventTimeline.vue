@@ -221,8 +221,8 @@ onUnmounted(() => {
           placeholder="タグ検索" 
           style="padding: 0.4rem 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; flex: 1; max-width: 200px;"
         />
-        <button @click="showCreateForm = !showCreateForm" style="padding: 0.4rem 0.8rem; font-size: 0.9rem; white-space: nowrap;">
-          {{ showCreateForm ? 'キャンセル' : '新規作成' }}
+        <button @click="showCreateForm = !showCreateForm" style="padding: 0.4rem 0.8rem; font-size: 0.9rem; white-space: nowrap; background: #ff7b25; color: white; border: none; border-radius: 8px; font-weight: bold; box-shadow: 0 2px 4px rgba(255, 123, 37, 0.3);">
+          {{ showCreateForm ? 'キャンセル' : 'イベント新規作成' }}
         </button>
       </div>
 
@@ -294,7 +294,7 @@ onUnmounted(() => {
            :style="{ cursor: editingEventId === event.id ? 'default' : 'pointer' }"
            @click="editingEventId !== event.id ? emit('showDetail', event.id) : null">
         
-        <div v-if="isEventOwner(event)" style="position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.25rem;">
+        <div v-if="isEventOwner(event) && editingEventId !== event.id" style="position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.25rem;">
           <button @click="startEditEvent(event, $event)"
                   style="background: #fd7e14; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
             編集
