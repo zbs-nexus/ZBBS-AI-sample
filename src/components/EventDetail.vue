@@ -107,17 +107,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div style="height: 100vh; overflow-y: auto; padding: 0.5rem; box-sizing: border-box;">
-    <button @click="emit('back')" 
-            style="margin-bottom: 1rem; padding: 0.3rem 0.6rem; font-size: 0.8rem; font-weight: bold;
-                   background: #ffffff; color: #333333; border: 2px solid #333333; border-radius: 6px; 
-                   cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
-            @mouseover="($event.target as HTMLElement).style.background = '#f8f9fa'"
-            @mouseout="($event.target as HTMLElement).style.background = '#ffffff'">
-      ← 戻る
-    </button>
+  <div style="height: 100%; display: flex; flex-direction: column;">
+    <div style="padding: 0.3rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.2); background: transparent;">
+      <button @click="emit('back')" 
+              style="margin-bottom: 0.5rem; padding: 0.3rem 0.6rem; font-size: 0.8rem; font-weight: bold;
+                     background: #ffffff; color: #333333; border: 2px solid #333333; border-radius: 6px; 
+                     cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+              @mouseover="($event.target as HTMLElement).style.background = '#f8f9fa'"
+              @mouseout="($event.target as HTMLElement).style.background = '#ffffff'">
+        ← 戻る
+      </button>
+    </div>
     
-    <div v-if="event" class="card" style="padding: 0.75rem;">
+    <div style="flex: 1; overflow-y: auto; padding: 0.3rem 0.5rem;">
+      <div v-if="event" class="card" style="padding: 0.75rem;">
       <h2 style="margin: 0 0 0.5rem 0; font-size: 1.3rem;">{{ event.title }}</h2>
       <p style="margin: 0.5rem 0; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap;">{{ event.description }}</p>
       
@@ -170,6 +173,7 @@ onMounted(() => {
         <p v-if="!canJoin && !isParticipating" style="color: #dc3545; margin-top: 0.3rem; font-size: 0.85rem;">
           定員に達しています
         </p>
+      </div>
       </div>
     </div>
   </div>
