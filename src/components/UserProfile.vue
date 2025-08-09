@@ -76,7 +76,7 @@ async function saveProfile() {
   // 新しい画像がアップロードされた場合、S3にアップロード
   if (editForm.value.profileImageFile) {
     try {
-      const fileName = `public/profile-images/${props.user.userId}-${Date.now()}.${editForm.value.profileImageFile.name.split('.').pop()}`;
+      const fileName = `profile-images/${props.user.userId}-${Date.now()}.${editForm.value.profileImageFile.name.split('.').pop()}`;
       const result = await uploadData({
         key: fileName,
         data: editForm.value.profileImageFile,
