@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import type { Schema } from '../../amplify/data/resource';
 import { generateClient } from 'aws-amplify/data';
+import { uploadData, getUrl } from 'aws-amplify/storage';
 import { generateUserProfileId } from '../utils/idGenerator';
 
 const client = generateClient<Schema>();
@@ -25,7 +26,8 @@ const editForm = ref({
   department: '',
   section: '',
   hobbyTags: [] as string[],
-  profileImageUrl: ''
+  profileImageUrl: '',
+  profileImageFile: null as File | null
 });
 const imagePreview = ref<string>('');
 
@@ -46,7 +48,8 @@ function loadProfile() {
           department: profile.value.department || '',
           section: profile.value.section || '',
           hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null),
-          profileImageUrl: profile.value.profileImageUrl || ''
+          profileImageUrl: profile.value.profileImageUrl || '',
+          profileImageFile: null
         };
         imagePreview.value = profile.value.profileImageUrl || '';
       } else {
@@ -68,6 +71,29 @@ async function saveProfile() {
     return;
   }
   
+  let imageUrl = editForm.value.profileImageUrl;
+  
+  // 新しい画像がアップロードされた場合、S3にアップロード
+  if (editForm.value.profileImageFile) {
+    try {
+      const fileName = `profile-images/${props.user.userId}-${Date.now()}.${editForm.value.profileImageFile.name.split('.').pop()}`;
+      const result = await uploadData({
+        key: fileName,
+        data: editForm.value.profileImageFile,
+        options: {
+          contentType: editForm.value.profileImageFile.type
+        }
+      }).result;
+      
+      const urlResult = await getUrl({ key: fileName });
+      imageUrl = urlResult.url.toString();
+    } catch (error) {
+      console.error('画像アップロードエラー:', error);
+      alert('画像のアップロードに失敗しました');
+      return;
+    }
+  }
+  
   if (profile.value) {
     console.log('既存プロフィール更新:', profile.value.id);
     client.models.UserProfile.update({
@@ -76,7 +102,7 @@ async function saveProfile() {
       department: editForm.value.department,
       section: editForm.value.section,
       hobbyTags: editForm.value.hobbyTags,
-      profileImageUrl: editForm.value.profileImageUrl
+      profileImageUrl: imageUrl
     }).then((result) => {
       console.log('更新成功:', result);
       isEditing.value = false;
@@ -94,7 +120,7 @@ async function saveProfile() {
       department: editForm.value.department,
       section: editForm.value.section,
       hobbyTags: editForm.value.hobbyTags,
-      profileImageUrl: editForm.value.profileImageUrl
+      profileImageUrl: imageUrl
     }).then((result) => {
       console.log('作成成功:', result);
       isEditing.value = false;
@@ -105,16 +131,19 @@ async function saveProfile() {
   }
 }
 
-function handleImageSelect(event: Event) {
+async function handleImageSelect(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   if (file) {
+    // プレビュー用
     const reader = new FileReader();
     reader.onload = (e) => {
       imagePreview.value = e.target?.result as string;
-      editForm.value.profileImageUrl = e.target?.result as string;
     };
     reader.readAsDataURL(file);
+    
+    // S3アップロード用にファイルを保存
+    editForm.value.profileImageFile = file;
   }
 }
 
@@ -155,7 +184,8 @@ function startEditing() {
       department: profile.value.department || '',
       section: profile.value.section || '',
       hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null),
-      profileImageUrl: profile.value.profileImageUrl || ''
+      profileImageUrl: profile.value.profileImageUrl || '',
+      profileImageFile: null
     };
     imagePreview.value = profile.value.profileImageUrl || '';
   }
