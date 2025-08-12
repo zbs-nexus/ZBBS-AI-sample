@@ -7,6 +7,7 @@ import EventDetail from './components/EventDetail.vue';
 import UserProfile from './components/UserProfile.vue';
 import ClubList from './components/ClubList.vue';
 import WikiPage from './components/WikiPage.vue';
+import ClubApplications from './components/ClubApplications.vue';
 import { seedTagMaster, addNewTags } from './utils/seedData';
 import { I18n } from 'aws-amplify/utils';
 
@@ -67,6 +68,11 @@ function showEventDetailFromProfile(eventId: string) {
   currentView.value = 'detail';
 }
 
+function showClubApplications(clubId: string) {
+  selectedClubId.value = clubId;
+  currentView.value = 'applications';
+}
+
 onMounted(() => {
   // 初期データを投入
   seedTagMaster();
@@ -120,6 +126,14 @@ onMounted(() => {
             :club-id="selectedClubId" 
             :user="user" 
             @back="showClubList" 
+            @show-applications="showClubApplications"
+          />
+          
+          <ClubApplications 
+            v-if="currentView === 'applications'" 
+            :club-id="selectedClubId" 
+            :user="user" 
+            @back="() => { currentView = 'wiki' }" 
           />
         </div>
       </template>

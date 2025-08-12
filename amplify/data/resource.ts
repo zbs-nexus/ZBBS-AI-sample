@@ -54,6 +54,7 @@ const schema = a.schema({
       name: a.string().required(),
       description: a.string(),
       category: a.string(),
+      representativeEmail: a.string(),
       isActive: a.boolean().default(true),
       createdBy: a.string().required(),
     })
@@ -65,6 +66,14 @@ const schema = a.schema({
       title: a.string().required(),
       content: a.string(),
       lastEditedBy: a.string().required(),
+    })
+    .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
+    
+  ClubApplication: a
+    .model({
+      clubId: a.id().required(),
+      applicantUserId: a.string().required(),
+      status: a.string().default('pending'),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
 });

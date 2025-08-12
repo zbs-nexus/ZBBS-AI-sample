@@ -23,12 +23,14 @@ const selectedCategory = ref<string>('');
 const selectedEditCategory = ref<string>('');
 const newClub = ref({
   name: '',
-  tags: [] as string[]
+  tags: [] as string[],
+  representativeEmail: ''
 });
 const editingClubId = ref<string | null>(null);
 const editClub = ref({
   name: '',
-  tags: [] as string[]
+  tags: [] as string[],
+  representativeEmail: ''
 });
 
 let clubSubscription: any = null;
@@ -108,17 +110,38 @@ async function createClub() {
     return;
   }
   
+  if (!newClub.value.representativeEmail) {
+    alert('代表者メールアドレスは必須です');
+    return;
+  }
+  
+  // ユーザー登録チェック
+  try {
+    const { data: profiles } = await client.models.UserProfile.list({
+      filter: { userId: { eq: newClub.value.representativeEmail } }
+    });
+    if (profiles.length === 0) {
+      alert('指定されたメールアドレスのユーザーが登録されていません');
+      return;
+    }
+  } catch (error) {
+    console.error('ユーザーチェックエラー:', error);
+    alert('ユーザーの確認に失敗しました');
+    return;
+  }
+  
   try {
     const customId = await generateClubId();
     await client.models.Club.create({
       id: customId,
       name: newClub.value.name,
       category: newClub.value.tags.join(', '),
+      representativeEmail: newClub.value.representativeEmail,
       createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
     });
     
     showCreateForm.value = false;
-    newClub.value = { name: '', tags: [] };
+    newClub.value = { name: '', tags: [], representativeEmail: '' };
     selectedCategory.value = '';
   } catch (error) {
     console.error('部活動作成エラー:', error);
@@ -141,7 +164,8 @@ function startEditClub(club: Schema['Club']['type'], clickEvent: Event) {
   selectedEditCategory.value = '';
   editClub.value = {
     name: club.name || '',
-    tags: club.category ? club.category.split(', ') : []
+    tags: club.category ? club.category.split(', ') : [],
+    representativeEmail: club.representativeEmail || ''
   };
 }
 
@@ -155,7 +179,8 @@ async function updateClub() {
     await client.models.Club.update({
       id: editingClubId.value!,
       name: editClub.value.name,
-      category: editClub.value.tags.join(', ')
+      category: editClub.value.tags.join(', '),
+      representativeEmail: editClub.value.representativeEmail
     });
     
     editingClubId.value = null;
@@ -169,7 +194,7 @@ async function updateClub() {
 function cancelEdit() {
   editingClubId.value = null;
   selectedEditCategory.value = '';
-  editClub.value = { name: '', tags: [] };
+  editClub.value = { name: '', tags: [], representativeEmail: '' };
 }
 
 function deleteClub(club: Schema['Club']['type'], clickEvent: Event) {
@@ -232,6 +257,10 @@ onUnmounted(() => {
           <label>部活動名 *</label>
           <input v-model="newClub.name" placeholder="部活動名" required />
         </div>
+        <div class="form-group">
+          <label>代表者メールアドレス *</label>
+          <input v-model="newClub.representativeEmail" placeholder="代表者のメールアドレス" type="email" required />
+        </div>
 
         <div class="form-group">
           <label>カテゴリ選択</label>
@@ -275,6 +304,10 @@ onUnmounted(() => {
         <div class="form-group">
           <label>部活動名 *</label>
           <input v-model="editClub.name" placeholder="部活動名" required />
+        </div>
+        <div class="form-group">
+          <label>代表者メールアドレス</label>
+          <input v-model="editClub.representativeEmail" placeholder="代表者のメールアドレス" type="email" />
         </div>
         <div class="form-group">
           <label>カテゴリ選択</label>
