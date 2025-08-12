@@ -12,6 +12,14 @@ const backend = defineBackend({
   clubApplicationNotification
 });
 
+// SES権限をLambda関数に追加
+backend.clubApplicationNotification.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['ses:SendEmail'],
+    resources: ['*']
+  })
+);
+
 // Function URLを追加
 const functionUrl = backend.clubApplicationNotification.resources.lambda.addFunctionUrl({
   authType: 'NONE' as any,
@@ -22,14 +30,6 @@ const functionUrl = backend.clubApplicationNotification.resources.lambda.addFunc
     allowedOrigins: ['*']
   }
 });
-
-// SES権限をLambda関数に追加
-backend.clubApplicationNotification.resources.lambda.addToRolePolicy(
-  new PolicyStatement({
-    actions: ['ses:SendEmail'],
-    resources: ['*']
-  })
-);
 
 // Function URLを出力
 backend.addOutput({
