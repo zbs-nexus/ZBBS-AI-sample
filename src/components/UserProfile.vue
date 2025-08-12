@@ -219,7 +219,11 @@ function loadUpcomingEvents() {
         client.models.Event.list().then(({ data }) => {
           const now = new Date();
           upcomingEvents.value = data
-            .filter(event => eventIds.includes(event.id) && new Date(event.date) > now)
+            .filter(event => {
+              if (!eventIds.includes(event.id)) return false;
+              const eventEndTime = event.endDate ? new Date(event.endDate) : new Date(event.date);
+              return eventEndTime > now;
+            })
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         });
       } else {
