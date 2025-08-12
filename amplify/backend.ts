@@ -14,12 +14,12 @@ const backend = defineBackend({
 
 // Function URLを追加
 const functionUrl = backend.clubApplicationNotification.resources.lambda.addFunctionUrl({
-  authType: 'NONE',
+  authType: 'NONE' as any,
   cors: {
     allowCredentials: false,
-    allowHeaders: ['Content-Type'],
-    allowMethods: ['POST'],
-    allowOrigins: ['*']
+    allowedHeaders: ['Content-Type'],
+    allowedMethods: ['POST'],
+    allowedOrigins: ['*']
   }
 });
 

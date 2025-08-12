@@ -1,8 +1,8 @@
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
 
 const ses = new SESClient({ region: process.env.AWS_REGION });
 
-export const handler = async (event: any) => {
+exports.handler = async (event) => {
   console.log('Club application notification triggered:', event);
   
   try {
