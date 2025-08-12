@@ -62,6 +62,11 @@ function showWikiPage(clubId: string) {
   currentView.value = 'wiki';
 }
 
+function showEventDetailFromProfile(eventId: string) {
+  selectedEventId.value = eventId;
+  currentView.value = 'detail';
+}
+
 onMounted(() => {
   // 初期データを投入
   seedTagMaster();
@@ -100,6 +105,7 @@ onMounted(() => {
             :user="user" 
             :signOut="signOut"
             @back="showTimeline" 
+            @show-event-detail="showEventDetailFromProfile"
           />
           
           <ClubList 

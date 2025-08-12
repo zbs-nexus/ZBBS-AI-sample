@@ -100,6 +100,11 @@ async function createEvent() {
     return;
   }
   
+  if (newEvent.value.endDate && new Date(newEvent.value.endDate) <= new Date(newEvent.value.date)) {
+    alert('終了日時は開催日時より後の日時で設定してください');
+    return;
+  }
+  
   if (newEvent.value.tags.length === 0) {
     alert('タグを少なくとも1つ追加してください');
     return;
@@ -171,6 +176,11 @@ function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
 function updateEvent() {
   if (!editEvent.value.title || !editEvent.value.date) {
     alert('イベント名と開催日時は必須です');
+    return;
+  }
+  
+  if (editEvent.value.endDate && new Date(editEvent.value.endDate) <= new Date(editEvent.value.date)) {
+    alert('終了日時は開催日時より後の日時で設定してください');
     return;
   }
   

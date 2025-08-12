@@ -14,6 +14,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   back: [];
+  showEventDetail: [eventId: string];
 }>();
 
 const profile = ref<Schema['UserProfile']['type'] | null>(null);
@@ -288,7 +289,10 @@ onUnmounted(() => {
           <strong style="font-size: 0.9rem; color: #333;">参加予定イベント:</strong>
           <div v-if="upcomingEvents.length" style="margin-top: 0.5rem;">
             <div v-for="event in upcomingEvents" :key="event.id" 
-                 style="background: #e3f2fd; color: #1976d2; padding: 0.3rem 0.6rem; margin-right: 0.3rem; margin-bottom: 0.3rem; border-radius: 8px; font-size: 0.8rem; display: inline-block; border-left: 3px solid #1976d2;">
+                 @click="emit('showEventDetail', event.id)"
+                 style="background: #e3f2fd; color: #1976d2; padding: 0.3rem 0.6rem; margin-right: 0.3rem; margin-bottom: 0.3rem; border-radius: 8px; font-size: 0.8rem; display: inline-block; border-left: 3px solid #1976d2; cursor: pointer; transition: background-color 0.2s ease;"
+                 @mouseover="($event.currentTarget as HTMLElement).style.backgroundColor = '#bbdefb'"
+                 @mouseout="($event.currentTarget as HTMLElement).style.backgroundColor = '#e3f2fd'">
               <div style="font-weight: bold;">{{ event.title }}</div>
               <div style="font-size: 0.7rem; opacity: 0.8;">{{ new Date(event.date).toLocaleDateString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</div>
             </div>
