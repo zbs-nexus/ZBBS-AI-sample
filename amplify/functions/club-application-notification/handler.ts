@@ -1,9 +1,10 @@
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
-import type { Handler } from 'aws-lambda';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
-const sns = new SNSClient({ region: process.env.AWS_REGION });
+const ses = new SESClient({ region: process.env.AWS_REGION });
 
-export const handler: Handler = async (event) => {
+export const handler = async (event: any) => {
+  console.log('Club application notification triggered:', event);
+  
   try {
     const { 
       representativeEmail, 
@@ -11,10 +12,9 @@ export const handler: Handler = async (event) => {
       applicantDepartment, 
       applicantSection, 
       clubName 
-    } = JSON.parse(event.body);
+    } = JSON.parse(event.body || '{}');
 
-    const message = `
-【部活動参加申請通知】
+    const message = `【部活動参加申請通知】
 
 部活動「${clubName}」に新しい参加申請が届きました。
 
@@ -22,32 +22,44 @@ export const handler: Handler = async (event) => {
 ・名前: ${applicantName}
 ・所属: ${applicantDepartment} / ${applicantSection}
 
-申請者一覧から詳細をご確認ください。
-    `;
+申請者一覧から詳細をご確認ください。`;
 
-    const params = {
-      Message: message,
-      Subject: `【ZBBS部】${clubName}への参加申請`,
-      TopicArn: process.env.SNS_TOPIC_ARN,
-      MessageAttributes: {
-        email: {
-          DataType: 'String',
-          StringValue: representativeEmail
+    await ses.send(new SendEmailCommand({
+      Source: process.env.FROM_EMAIL,
+      Destination: {
+        ToAddresses: [representativeEmail]
+      },
+      Message: {
+        Subject: {
+          Data: `【ZBBS部】${clubName}への参加申請`,
+          Charset: 'UTF-8'
+        },
+        Body: {
+          Text: {
+            Data: message,
+            Charset: 'UTF-8'
+          }
         }
       }
-    };
-
-    await sns.send(new PublishCommand(params));
-
+    }));
+    
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Notification sent successfully' })
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({ message: 'Email sent successfully' })
     };
   } catch (error) {
-    console.error('Error sending notification:', error);
+    console.error('Error sending email:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to send notification' })
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({ error: 'Failed to send email' })
     };
   }
 };

@@ -157,7 +157,14 @@ async function applyToClub() {
     
     // メール通知送信
     try {
-      const response = await fetch('/api/club-application-notification', {
+      const { data } = await client.models.ClubApplication.create({
+        clubId: props.clubId!,
+        applicantUserId: props.user.userId,
+        status: 'pending'
+      });
+      
+      // Lambda関数を呼び出し
+      await fetch(`https://YOUR_API_GATEWAY_URL/club-application-notification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -170,10 +177,6 @@ async function applyToClub() {
           clubName: club.value?.name
         })
       });
-      
-      if (!response.ok) {
-        console.error('メール通知送信エラー');
-      }
     } catch (emailError) {
       console.error('メール通知エラー:', emailError);
     }
