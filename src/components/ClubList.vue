@@ -249,9 +249,33 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <div v-if="editingClubId" class="card" style="margin-bottom: 1rem;">
+      <h3>部活動編集</h3>
+      <div class="form-container">
+        <div class="form-group">
+          <label>部活動名 *</label>
+          <input v-model="editClub.name" placeholder="部活動名" required />
+        </div>
+        <div class="form-group">
+          <label>選択済みタグ</label>
+          <div v-if="editClub.tags.length" style="margin-top: 0.5rem;">
+            <span v-for="(tag, index) in editClub.tags" :key="index" 
+                  @click="editClub.tags.splice(index, 1)"
+                  style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block; cursor: pointer;">
+              {{ tag }}
+            </span>
+          </div>
+        </div>
+        <div class="form-group">
+          <div style="display: flex; gap: 1rem;">
+            <button @click="updateClub" type="button">更新</button>
+            <button @click="cancelEdit" type="button" style="background: #6c757d;">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-
-    <div v-if="!showCreateForm" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+    <div v-if="!showCreateForm && !editingClubId" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
       <div v-for="club in clubs" :key="club.id" 
            class="card club-card" 
            @click="showWikiPage(club.id)"
