@@ -4,6 +4,7 @@ import { data } from './data/resource';
 import { storage } from './storage/resource';
 import { clubApplicationNotification } from './functions/club-application-notification/resource';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { HttpMethod } from 'aws-cdk-lib/aws-lambda';
 
 const backend = defineBackend({
   auth,
@@ -18,7 +19,7 @@ const functionUrl = backend.clubApplicationNotification.resources.lambda.addFunc
   cors: {
     allowCredentials: false,
     allowedHeaders: ['Content-Type'],
-    allowedMethods: ['POST'],
+    allowedMethods: [HttpMethod.POST],
     allowedOrigins: ['*']
   }
 });

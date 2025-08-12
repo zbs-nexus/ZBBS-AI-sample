@@ -1,8 +1,17 @@
-const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 const ses = new SESClient({ region: process.env.AWS_REGION });
 
-exports.handler = async (event) => {
+interface NotificationRequest {
+  representativeEmail: string;
+  applicantName: string;
+  applicantDepartment: string;
+  applicantSection: string;
+  clubName: string;
+}
+
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log('Club application notification triggered:', event);
   
   try {
@@ -12,7 +21,7 @@ exports.handler = async (event) => {
       applicantDepartment, 
       applicantSection, 
       clubName 
-    } = JSON.parse(event.body || '{}');
+    }: NotificationRequest = JSON.parse(event.body || '{}');
 
     const message = `【部活動参加申請通知】
 
