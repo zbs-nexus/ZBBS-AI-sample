@@ -52,7 +52,7 @@ function loadEvents() {
   client.models.Event.observeQuery().subscribe({
     next: ({ items }) => {
       console.log('イベントデータ取得:', items);
-      events.value = items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      events.value = items.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     },
     error: (error) => {
       console.error('イベントデータ取得エラー:', error);
