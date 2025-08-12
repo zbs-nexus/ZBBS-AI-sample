@@ -9,6 +9,7 @@ const schema = a.schema({
       location: a.string(),
       maxParticipants: a.integer(),
       tags: a.string().array(),
+      targetAudience: a.string(),
       createdBy: a.string().required(),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),

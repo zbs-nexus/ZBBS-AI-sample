@@ -20,6 +20,7 @@ const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
 const categories = ref<string[]>([]);
 const showCreateForm = ref(false);
 const selectedCategory = ref<string>('');
+const selectedEditCategory = ref<string>('');
 const newClub = ref({
   name: '',
   tags: [] as string[]
@@ -79,6 +80,15 @@ function toggleTag(tagName: string) {
   }
 }
 
+function toggleEditTag(tagName: string) {
+  const index = editClub.value.tags.indexOf(tagName);
+  if (index > -1) {
+    editClub.value.tags.splice(index, 1);
+  } else {
+    editClub.value.tags.push(tagName);
+  }
+}
+
 async function createClub() {
   if (!newClub.value.name) {
     alert('部活動名は必須です');
@@ -120,6 +130,7 @@ function isClubOwner(club: Schema['Club']['type']) {
 function startEditClub(club: Schema['Club']['type'], clickEvent: Event) {
   clickEvent.stopPropagation();
   editingClubId.value = club.id;
+  selectedEditCategory.value = '';
   editClub.value = {
     name: club.name || '',
     tags: club.category ? club.category.split(', ') : []
@@ -149,6 +160,7 @@ async function updateClub() {
 
 function cancelEdit() {
   editingClubId.value = null;
+  selectedEditCategory.value = '';
   editClub.value = { name: '', tags: [] };
 }
 
@@ -249,9 +261,59 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <div v-if="editingClubId" class="card" style="margin-bottom: 1rem;">
+      <h3>部活動編集</h3>
+      <div class="form-container">
+        <div class="form-group">
+          <label>部活動名 *</label>
+          <input v-model="editClub.name" placeholder="部活動名" required />
+        </div>
+        <div class="form-group">
+          <label>カテゴリ選択</label>
+          <select v-model="selectedEditCategory" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
+            <option value="">カテゴリを選択してください</option>
+            <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+          </select>
+        </div>
+        
+        <div v-if="selectedEditCategory" class="form-group">
+          <label>タグ選択</label>
+          <div style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
+            <div v-for="tag in getTagsByCategory(selectedEditCategory)" :key="tag.id" style="margin-bottom: 0.5rem;">
+              <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+                <input type="checkbox" 
+                       :checked="editClub.tags.includes(tag.name)" 
+                       @change="toggleEditTag(tag.name)" 
+                       style="margin-right: 0.5rem; width: auto;" />
+                <span>{{ tag.name }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>選択済みタグ</label>
+          <div v-if="editClub.tags.length" style="margin-top: 0.5rem;">
+            <span v-for="(tag, index) in editClub.tags" :key="index" 
+                  @click="toggleEditTag(tag)"
+                  style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block; cursor: pointer;">
+              {{ tag }}
+            </span>
+          </div>
+          <div v-else style="color: #666; font-size: 0.9rem;">
+            タグを選択してください
+          </div>
+        </div>
+        <div class="form-group">
+          <div style="display: flex; gap: 1rem;">
+            <button @click="updateClub" type="button">更新</button>
+            <button @click="cancelEdit" type="button" style="background: #6c757d;">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-
-    <div v-if="!showCreateForm" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+    <div v-if="!showCreateForm && !editingClubId" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.25rem;">
       <div v-for="club in clubs" :key="club.id" 
            class="card club-card" 
            @click="showWikiPage(club.id)"
