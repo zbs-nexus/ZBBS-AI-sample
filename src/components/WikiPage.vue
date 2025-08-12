@@ -156,28 +156,15 @@ async function applyToClub() {
     });
     
     // メール通知送信
-    try {
-      const response = await fetch('https://YOUR_LAMBDA_FUNCTION_URL', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          representativeEmail: club.value?.representativeEmail,
-          applicantName: userProfile.value.name,
-          applicantDepartment: userProfile.value.department,
-          applicantSection: userProfile.value.section,
-          clubName: club.value?.name
-        })
+    if (club.value?.representativeEmail) {
+      const { sendClubApplicationNotification } = await import('../utils/emailService');
+      await sendClubApplicationNotification({
+        representativeEmail: club.value.representativeEmail,
+        applicantName: userProfile.value.name,
+        applicantDepartment: userProfile.value.department,
+        applicantSection: userProfile.value.section,
+        clubName: club.value.name
       });
-      
-      if (response.ok) {
-        console.log('メール通知送信成功');
-      } else {
-        console.error('メール通知送信エラー');
-      }
-    } catch (emailError) {
-      console.error('メール通知エラー:', emailError);
     }
     
     hasApplied.value = true;
