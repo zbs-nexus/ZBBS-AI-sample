@@ -115,20 +115,15 @@ async function createClub() {
     return;
   }
   
-  // ユーザー登録チェック
-  try {
-    const { data: profiles } = await client.models.UserProfile.list({
-      filter: { userId: { eq: newClub.value.representativeEmail } }
-    });
-    if (profiles.length === 0) {
-      alert('指定されたメールアドレスのユーザーが登録されていません');
-      return;
-    }
-  } catch (error) {
-    console.error('ユーザーチェックエラー:', error);
-    alert('ユーザーの確認に失敗しました');
+  // メールアドレス形式チェック
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(newClub.value.representativeEmail)) {
+    alert('有効なメールアドレスを入力してください');
     return;
   }
+  
+  // 注意: 実際のユーザー存在確認はCognitoで行う必要がありますが、
+  // 現在はメールアドレス形式のチェックのみ実装しています
   
   try {
     const customId = await generateClubId();
