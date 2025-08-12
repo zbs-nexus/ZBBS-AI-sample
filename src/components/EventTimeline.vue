@@ -16,6 +16,7 @@ const emit = defineEmits<{
 
 const events = ref<Array<Schema['Event']['type']>>([]);
 const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
+const clubs = ref<Array<Schema['Club']['type']>>([]);
 const categories = ref<string[]>([]);
 const selectedCategory = ref<string>('');
 const selectedEditCategory = ref<string>('');
@@ -23,13 +24,15 @@ const searchTag = ref('');
 const showCreateForm = ref(false);
 const editingEventId = ref<string | null>(null);
 let tagSubscription: any = null;
+let clubSubscription: any = null;
 const newEvent = ref({
   title: '',
   description: '',
   date: '',
   location: '',
   maxParticipants: 10,
-  tags: [] as string[]
+  tags: [] as string[],
+  targetAudience: ''
 });
 const editEvent = ref({
   title: '',
@@ -37,7 +40,8 @@ const editEvent = ref({
   date: '',
   location: '',
   maxParticipants: 10,
-  tags: [] as string[]
+  tags: [] as string[],
+  targetAudience: ''
 });
 
 function loadEvents() {
@@ -70,6 +74,20 @@ function loadTagMaster() {
   });
 }
 
+function loadClubs() {
+  if (clubSubscription) {
+    clubSubscription.unsubscribe();
+  }
+  
+  clubSubscription = client.models.Club.observeQuery({
+    filter: { isActive: { eq: true } }
+  }).subscribe({
+    next: ({ items }) => {
+      clubs.value = items.sort((a, b) => a.name.localeCompare(b.name));
+    }
+  });
+}
+
 function getTagsByCategory(category: string) {
   return tagMaster.value.filter(tag => tag.category === category);
 }
@@ -94,13 +112,14 @@ async function createEvent() {
     location: newEvent.value.location,
     maxParticipants: newEvent.value.maxParticipants,
     tags: newEvent.value.tags,
+    targetAudience: newEvent.value.targetAudience,
     createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
   };
   
   client.models.Event.create(eventData).then((result) => {
     console.log('イベント作成成功:', result);
     showCreateForm.value = false;
-    newEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
+    newEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
   }).catch((error) => {
     console.error('イベント作成エラー:', error);
     alert('イベント作成に失敗しました');
@@ -140,7 +159,8 @@ function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
     date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
     location: event.location || '',
     maxParticipants: event.maxParticipants || 10,
-    tags: (event.tags || []).filter((tag): tag is string => tag !== null)
+    tags: (event.tags || []).filter((tag): tag is string => tag !== null),
+    targetAudience: event.targetAudience || ''
   };
 }
 
@@ -162,13 +182,14 @@ function updateEvent() {
     date: new Date(editEvent.value.date).toISOString(),
     location: editEvent.value.location,
     maxParticipants: editEvent.value.maxParticipants,
-    tags: editEvent.value.tags
+    tags: editEvent.value.tags,
+    targetAudience: editEvent.value.targetAudience
   };
   
   client.models.Event.update(eventData).then((result) => {
     console.log('イベント更新成功:', result);
     editingEventId.value = null;
-    editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
+    editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
   }).catch((error) => {
     console.error('イベント更新エラー:', error);
     alert('イベント更新に失敗しました');
@@ -187,7 +208,7 @@ function toggleTag(tagName: string, isEdit = false) {
 
 function cancelEdit() {
   editingEventId.value = null;
-  editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [] };
+  editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
 }
 
 
@@ -202,11 +223,15 @@ const filteredEvents = computed(() => {
 onMounted(() => {
   loadEvents();
   loadTagMaster();
+  loadClubs();
 });
 
 onUnmounted(() => {
   if (tagSubscription) {
     tagSubscription.unsubscribe();
+  }
+  if (clubSubscription) {
+    clubSubscription.unsubscribe();
   }
 });
 </script>
@@ -248,6 +273,14 @@ onUnmounted(() => {
           <div class="form-group">
             <label>最大参加者数</label>
             <input v-model="newEvent.maxParticipants" type="number" placeholder="最大参加者数" />
+          </div>
+          <div class="form-group">
+            <label>参加対象者</label>
+            <select v-model="newEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
+              <option value="">選択してください</option>
+              <option value="どなたでも歓迎">どなたでも歓迎</option>
+              <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
+            </select>
           </div>
           <div class="form-group">
             <label>タグ *</label>
@@ -313,6 +346,11 @@ onUnmounted(() => {
             <input v-model="editEvent.date" type="datetime-local" required />
             <input v-model="editEvent.location" placeholder="開催場所" />
             <input v-model="editEvent.maxParticipants" type="number" placeholder="最大参加者数" />
+            <select v-model="editEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+              <option value="">参加対象者を選択</option>
+              <option value="どなたでも歓迎">どなたでも歓迎</option>
+              <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
+            </select>
             <div>
               <label><strong>タグ *</strong></label>
               <div style="margin-bottom: 0.5rem; margin-top: 0.5rem;">
@@ -357,6 +395,7 @@ onUnmounted(() => {
           <h3 style="font-size: 1.3rem; font-weight: 700; margin: 0 0 0.3rem 0;">{{ event.title }}</h3>
           <p style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催日時:</strong> {{ new Date(event.date).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</p>
           <p v-if="event.location" style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催場所:</strong> {{ event.location }}</p>
+          <p v-if="event.targetAudience" style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>参加対象:</strong> {{ event.targetAudience }}</p>
           <div v-if="event.tags?.length" style="margin-top: 0.3rem;">
             <span v-for="(tag, index) in event.tags" :key="index" 
                   style="background: #007bff; color: white; padding: 0.15rem 0.4rem; margin-right: 0.3rem; border-radius: 10px; font-size: 0.75rem;">
