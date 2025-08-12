@@ -19,9 +19,12 @@ backend.auth.resources.authenticatedUserIamRole.addToPrincipalPolicy(
 );
 
 // SES設定を出力（フロントエンドで直接SES SDKを使用）
+// 注意: 現在SESはサンドボックス環境です。本格運用には以下が必要です：
+// 1. AWS SESコンソールで「Request production access」を申請
+// 2. 申請が承認されると任意のメールアドレスに送信可能
 backend.addOutput({
   custom: {
     sesRegion: 'ap-northeast-1',
-    fromEmail: 'hiei-tom@z-bs.co.jp'
+    fromEmail: 'hieitom777@gmail.com'
   }
 });

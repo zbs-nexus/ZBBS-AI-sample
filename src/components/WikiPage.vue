@@ -182,7 +182,7 @@ async function applyToClub() {
 申請者一覧から詳細をご確認ください。`;
           
           await sesClient.send(new SendEmailCommand({
-            Source: 'hiei-tom@z-bs.co.jp',
+            Source: 'hieitom777@gmail.com',
             Destination: {
               ToAddresses: [club.value.representativeEmail]
             },
@@ -203,13 +203,21 @@ async function applyToClub() {
           console.log('メール通知送信成功');
         }
       }
-    } catch (emailError) {
-      console.log('メール通知ログ出力:', {
-        representativeEmail: club.value?.representativeEmail,
-        applicantName: userProfile.value.name,
-        clubName: club.value?.name,
-        error: emailError
+    } catch (emailError: any) {
+      console.log('SESエラー詳細:', {
+        errorName: emailError.name,
+        errorMessage: emailError.message,
+        errorCode: emailError.code,
+        fromEmail: 'hiei-tom@z-bs.co.jp',
+        toEmail: club.value?.representativeEmail,
+        region: 'ap-northeast-1'
       });
+      
+      if (emailError.name === 'MessageRejected' && emailError.message.includes('Email address is not verified')) {
+        console.log('サンドボックス環境: メールアドレスの検証が必要です');
+      } else {
+        console.log('その他のSESエラー:', emailError);
+      }
     }
     
     hasApplied.value = true;
