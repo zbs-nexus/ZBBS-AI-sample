@@ -1,5 +1,4 @@
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
 
 const ses = new SESClient({ region: process.env.AWS_REGION });
 
@@ -11,7 +10,17 @@ interface NotificationRequest {
   clubName: string;
 }
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+interface LambdaEvent {
+  body?: string;
+}
+
+interface LambdaResult {
+  statusCode: number;
+  headers: Record<string, string>;
+  body: string;
+}
+
+exports.handler = async (event: LambdaEvent): Promise<LambdaResult> => {
   console.log('Club application notification triggered:', event);
   
   try {
