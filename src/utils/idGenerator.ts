@@ -92,3 +92,19 @@ export async function generateUserProfileId(): Promise<string> {
   
   return `USR-${monthStr}-${sequence}`;
 }
+
+// 部活動ID生成: CLB-{連番4桁}
+export async function generateClubId(): Promise<string> {
+  const counter = await getNextCounter('CLUB');
+  const sequence = counter.toString().padStart(4, '0');
+  
+  return `CLB-${sequence}`;
+}
+
+// WikiページID生成: WKI-{連番6桁}
+export async function generateWikiId(): Promise<string> {
+  const counter = await getNextCounter('WIKI');
+  const sequence = counter.toString().padStart(6, '0');
+  
+  return `WKI-${sequence}`;
+}

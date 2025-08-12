@@ -5,6 +5,8 @@ import { ref, onMounted } from 'vue';
 import EventTimeline from './components/EventTimeline.vue';
 import EventDetail from './components/EventDetail.vue';
 import UserProfile from './components/UserProfile.vue';
+import ClubList from './components/ClubList.vue';
+import WikiPage from './components/WikiPage.vue';
 import { seedTagMaster, addNewTags } from './utils/seedData';
 import { I18n } from 'aws-amplify/utils';
 
@@ -36,6 +38,7 @@ I18n.setLanguage('ja');
 
 const currentView = ref('timeline');
 const selectedEventId = ref<string | null>(null);
+const selectedClubId = ref<string | null>(null);
 
 function showEventDetail(eventId: string) {
   selectedEventId.value = eventId;
@@ -48,6 +51,15 @@ function showProfile() {
 
 function showTimeline() {
   currentView.value = 'timeline';
+}
+
+function showClubList() {
+  currentView.value = 'clubs';
+}
+
+function showWikiPage(clubId: string) {
+  selectedClubId.value = clubId;
+  currentView.value = 'wiki';
 }
 
 onMounted(() => {
@@ -65,6 +77,7 @@ onMounted(() => {
         <nav style="padding: 1rem; border-bottom: 1px solid #ccc; display: flex; gap: 0.5rem; align-items: center; background: white; position: sticky; top: 0; z-index: 100; border-radius: 16px;">
           <img src="/src/assets/logo.png" alt="ZBBS部" style="height: 80px; width: auto;" />
           <button @click="showTimeline">イベント一覧</button>
+          <button @click="showClubList">部活動</button>
           <button @click="showProfile">プロフィール</button>
         </nav>
         
@@ -87,6 +100,20 @@ onMounted(() => {
             :user="user" 
             :signOut="signOut"
             @back="showTimeline" 
+          />
+          
+          <ClubList 
+            v-if="currentView === 'clubs'" 
+            :user="user" 
+            @back="showTimeline" 
+            @show-wiki="showWikiPage"
+          />
+          
+          <WikiPage 
+            v-if="currentView === 'wiki'" 
+            :club-id="selectedClubId" 
+            :user="user" 
+            @back="showClubList" 
           />
         </div>
       </template>
