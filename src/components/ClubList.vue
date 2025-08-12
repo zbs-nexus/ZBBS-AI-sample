@@ -251,7 +251,7 @@ onUnmounted(() => {
 
 
 
-    <div class="clubs-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+    <div v-if="!showCreateForm" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
       <div v-for="club in clubs" :key="club.id" 
            class="card club-card" 
            @click="showWikiPage(club.id)"
@@ -283,7 +283,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="clubs.length === 0" style="text-align: center; padding: 2rem; color: white;">
+    <div v-if="!showCreateForm && clubs.length === 0" style="text-align: center; padding: 2rem; color: white;">
       <p>まだ部活動が登録されていません</p>
       <p>新規作成ボタンから部活動を追加してください</p>
     </div>
