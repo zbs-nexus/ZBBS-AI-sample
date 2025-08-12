@@ -313,7 +313,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="!showCreateForm && !editingClubId" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+    <div v-if="!showCreateForm && !editingClubId" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.25rem;">
       <div v-for="club in clubs" :key="club.id" 
            class="card club-card" 
            @click="showWikiPage(club.id)"
