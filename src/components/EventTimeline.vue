@@ -29,6 +29,7 @@ const newEvent = ref({
   title: '',
   description: '',
   date: '',
+  endDate: '',
   location: '',
   maxParticipants: 10,
   tags: [] as string[],
@@ -38,6 +39,7 @@ const editEvent = ref({
   title: '',
   description: '',
   date: '',
+  endDate: '',
   location: '',
   maxParticipants: 10,
   tags: [] as string[],
@@ -109,6 +111,7 @@ async function createEvent() {
     title: newEvent.value.title,
     description: newEvent.value.description,
     date: new Date(newEvent.value.date).toISOString(),
+    endDate: newEvent.value.endDate ? new Date(newEvent.value.endDate).toISOString() : null,
     location: newEvent.value.location,
     maxParticipants: newEvent.value.maxParticipants,
     tags: newEvent.value.tags,
@@ -119,7 +122,7 @@ async function createEvent() {
   client.models.Event.create(eventData).then((result) => {
     console.log('イベント作成成功:', result);
     showCreateForm.value = false;
-    newEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
+    newEvent.value = { title: '', description: '', date: '', endDate: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
   }).catch((error) => {
     console.error('イベント作成エラー:', error);
     alert('イベント作成に失敗しました');
@@ -157,6 +160,7 @@ function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
     title: event.title || '',
     description: event.description || '',
     date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
+    endDate: event.endDate ? new Date(event.endDate).toISOString().slice(0, 16) : '',
     location: event.location || '',
     maxParticipants: event.maxParticipants || 10,
     tags: (event.tags || []).filter((tag): tag is string => tag !== null),
@@ -180,6 +184,7 @@ function updateEvent() {
     title: editEvent.value.title,
     description: editEvent.value.description,
     date: new Date(editEvent.value.date).toISOString(),
+    endDate: editEvent.value.endDate ? new Date(editEvent.value.endDate).toISOString() : null,
     location: editEvent.value.location,
     maxParticipants: editEvent.value.maxParticipants,
     tags: editEvent.value.tags,
@@ -189,7 +194,7 @@ function updateEvent() {
   client.models.Event.update(eventData).then((result) => {
     console.log('イベント更新成功:', result);
     editingEventId.value = null;
-    editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
+    editEvent.value = { title: '', description: '', date: '', endDate: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
   }).catch((error) => {
     console.error('イベント更新エラー:', error);
     alert('イベント更新に失敗しました');
@@ -208,7 +213,7 @@ function toggleTag(tagName: string, isEdit = false) {
 
 function cancelEdit() {
   editingEventId.value = null;
-  editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
+  editEvent.value = { title: '', description: '', date: '', endDate: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
 }
 
 
@@ -265,6 +270,10 @@ onUnmounted(() => {
           <div class="form-group">
             <label>開催日時 *</label>
             <input v-model="newEvent.date" type="datetime-local" required />
+          </div>
+          <div class="form-group">
+            <label>終了日時</label>
+            <input v-model="newEvent.endDate" type="datetime-local" />
           </div>
           <div class="form-group">
             <label>開催場所</label>
@@ -344,6 +353,7 @@ onUnmounted(() => {
             <input v-model="editEvent.title" placeholder="イベント名" required />
             <textarea v-model="editEvent.description" placeholder="説明" rows="3"></textarea>
             <input v-model="editEvent.date" type="datetime-local" required />
+            <input v-model="editEvent.endDate" type="datetime-local" placeholder="終了日時" />
             <input v-model="editEvent.location" placeholder="開催場所" />
             <input v-model="editEvent.maxParticipants" type="number" placeholder="最大参加者数" />
             <select v-model="editEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
