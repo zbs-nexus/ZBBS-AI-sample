@@ -22,8 +22,14 @@ const isParticipating = ref(false);
 const userProfile = ref<Schema['UserProfile']['type'] | null>(null);
 
 const participantCount = computed(() => participants.value.length);
+const isRecruitmentExpired = computed(() => {
+  if (!event.value?.recruitmentDeadline) return false;
+  return new Date(event.value.recruitmentDeadline) < new Date();
+});
 const canJoin = computed(() => 
-  event.value && (!event.value.maxParticipants || participantCount.value < event.value.maxParticipants)
+  event.value && 
+  (!event.value.maxParticipants || participantCount.value < event.value.maxParticipants) &&
+  !isRecruitmentExpired.value
 );
 
 function loadEvent() {
@@ -127,6 +133,7 @@ onMounted(() => {
       <div style="margin: 0.5rem 0;">
         <p style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>開催日時:</strong> {{ new Date(event.date).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</p>
         <p v-if="event.endDate" style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>終了日時:</strong> {{ new Date(event.endDate).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</p>
+        <p v-if="event.recruitmentDeadline" style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>募集期限:</strong> {{ new Date(event.recruitmentDeadline).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</p>
         <p v-if="event.location" style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>場所:</strong> {{ event.location }}</p>
         <p style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>参加者数:</strong> {{ participantCount }}{{ event.maxParticipants ? ` / ${event.maxParticipants}` : '' }}人</p>
         <p v-if="event.targetAudience" style="margin: 0.2rem 0; font-size: 0.85rem;"><strong>参加対象:</strong> {{ event.targetAudience }}</p>
@@ -172,8 +179,12 @@ onMounted(() => {
           参加をキャンセル
         </button>
         
-        <p v-if="!canJoin && !isParticipating" style="color: #dc3545; margin-top: 0.3rem; font-size: 0.85rem;">
+        <p v-if="!canJoin && !isParticipating && !isRecruitmentExpired" style="color: #dc3545; margin-top: 0.3rem; font-size: 0.85rem;">
           定員に達しています
+        </p>
+        
+        <p v-if="isRecruitmentExpired && !isParticipating" style="color: #dc3545; margin-top: 0.3rem; font-size: 0.85rem;">
+          募集期限が終了しています
         </p>
       </div>
       </div>

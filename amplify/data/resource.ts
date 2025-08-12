@@ -11,6 +11,7 @@ const schema = a.schema({
       maxParticipants: a.integer(),
       tags: a.string().array(),
       targetAudience: a.string(),
+      recruitmentDeadline: a.datetime(),
       createdBy: a.string().required(),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
