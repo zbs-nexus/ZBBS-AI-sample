@@ -19,14 +19,15 @@ const clubs = ref<Array<Schema['Club']['type']>>([]);
 const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
 const categories = ref<string[]>([]);
 const showCreateForm = ref(false);
+const selectedCategory = ref<string>('');
 const newClub = ref({
   name: '',
-  category: ''
+  tags: [] as string[]
 });
 const editingClubId = ref<string | null>(null);
 const editClub = ref({
   name: '',
-  category: ''
+  tags: [] as string[]
 });
 
 let clubSubscription: any = null;
@@ -65,9 +66,27 @@ function loadTagMaster() {
   });
 }
 
+function getTagsByCategory(category: string) {
+  return tagMaster.value.filter(tag => tag.category === category);
+}
+
+function toggleTag(tagName: string) {
+  const index = newClub.value.tags.indexOf(tagName);
+  if (index > -1) {
+    newClub.value.tags.splice(index, 1);
+  } else {
+    newClub.value.tags.push(tagName);
+  }
+}
+
 async function createClub() {
   if (!newClub.value.name) {
     alert('部活動名は必須です');
+    return;
+  }
+  
+  if (newClub.value.tags.length === 0) {
+    alert('タグを少なくとも1つ選択してください');
     return;
   }
   
@@ -76,12 +95,13 @@ async function createClub() {
     await client.models.Club.create({
       id: customId,
       name: newClub.value.name,
-      category: newClub.value.category,
+      category: newClub.value.tags.join(', '),
       createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
     });
     
     showCreateForm.value = false;
-    newClub.value = { name: '', category: '' };
+    newClub.value = { name: '', tags: [] };
+    selectedCategory.value = '';
   } catch (error) {
     console.error('部活動作成エラー:', error);
     alert('部活動作成に失敗しました');
@@ -102,7 +122,7 @@ function startEditClub(club: Schema['Club']['type'], clickEvent: Event) {
   editingClubId.value = club.id;
   editClub.value = {
     name: club.name || '',
-    category: club.category || ''
+    tags: club.category ? club.category.split(', ') : []
   };
 }
 
@@ -116,11 +136,11 @@ async function updateClub() {
     await client.models.Club.update({
       id: editingClubId.value!,
       name: editClub.value.name,
-      category: editClub.value.category
+      category: editClub.value.tags.join(', ')
     });
     
     editingClubId.value = null;
-    editClub.value = { name: '', category: '' };
+    editClub.value = { name: '', tags: [] };
   } catch (error) {
     console.error('部活動更新エラー:', error);
     alert('部活動更新に失敗しました');
@@ -129,7 +149,7 @@ async function updateClub() {
 
 function cancelEdit() {
   editingClubId.value = null;
-  editClub.value = { name: '', category: '' };
+  editClub.value = { name: '', tags: [] };
 }
 
 function deleteClub(club: Schema['Club']['type'], clickEvent: Event) {
@@ -180,7 +200,7 @@ onUnmounted(() => {
       <h2 style="margin: 0; flex: 1;">部活動一覧</h2>
       
       <button @click="showCreateForm = !showCreateForm" 
-              style="padding: 0.4rem 0.8rem; font-size: 0.9rem; background: #ff9800; color: white; border: none; border-radius: 4px;">
+              style="padding: 0.4rem 0.8rem; font-size: 0.9rem; background: #f57c00; color: white; border: none; border-radius: 4px;">
         {{ showCreateForm ? 'キャンセル' : '部活動作成' }}
       </button>
     </div>
@@ -194,11 +214,34 @@ onUnmounted(() => {
         </div>
 
         <div class="form-group">
-          <label>カテゴリ</label>
-          <select v-model="newClub.category">
-            <option value="">カテゴリを選択</option>
+          <label>カテゴリ選択</label>
+          <select v-model="selectedCategory" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
+            <option value="">カテゴリを選択してください</option>
             <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
           </select>
+        </div>
+        
+        <div v-if="selectedCategory" class="form-group">
+          <label>タグ選択 *</label>
+          <div style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
+            <div v-for="tag in getTagsByCategory(selectedCategory)" :key="tag.id" style="margin-bottom: 0.5rem;">
+              <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+                <input type="checkbox" 
+                       :checked="newClub.tags.includes(tag.name)" 
+                       @change="toggleTag(tag.name)" 
+                       style="margin-right: 0.5rem; width: auto;" />
+                <span>{{ tag.name }}</span>
+              </label>
+            </div>
+          </div>
+          
+          <div v-if="newClub.tags.length" style="margin-top: 0.5rem;">
+            <span v-for="(tag, index) in newClub.tags" :key="index" 
+                  @click="toggleTag(tag)"
+                  style="background: #28a745; color: white; padding: 0.3rem 0.6rem; margin-right: 0.5rem; margin-bottom: 0.5rem; border-radius: 12px; font-size: 0.9rem; display: inline-block; cursor: pointer;">
+              {{ tag }}
+            </span>
+          </div>
         </div>
         <div class="form-group">
           <button @click="createClub" type="button">作成</button>
@@ -206,28 +249,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="editingClubId" class="card" style="margin-bottom: 1rem;">
-      <h3>部活動編集</h3>
-      <div class="form-container">
-        <div class="form-group">
-          <label>部活動名 *</label>
-          <input v-model="editClub.name" placeholder="部活動名" required />
-        </div>
-        <div class="form-group">
-          <label>カテゴリ</label>
-          <select v-model="editClub.category">
-            <option value="">カテゴリを選択</option>
-            <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <div style="display: flex; gap: 1rem;">
-            <button @click="updateClub" type="button">更新</button>
-            <button @click="cancelEdit" type="button" style="background: #6c757d;">キャンセル</button>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
     <div class="clubs-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
       <div v-for="club in clubs" :key="club.id" 
@@ -237,15 +259,17 @@ onUnmounted(() => {
            @mouseover="($event.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; ($event.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'"
            @mouseout="($event.currentTarget as HTMLElement).style.transform = 'translateY(0)'; ($event.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'">
         
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <h3 style="margin: 0; color: #333; font-size: 1.1rem; flex: 1;">{{ club.name }}</h3>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <h3 style="margin: 0; color: #333; font-size: 1.1rem;">{{ club.name }}</h3>
           
-          <span v-if="club.category" 
-                style="background: #e3f2fd; color: #1976d2; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem;">
-            {{ club.category }}
-          </span>
+          <div v-if="club.category" style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+            <span v-for="tag in club.category.split(', ')" :key="tag"
+                  style="background: #e3f2fd; color: #1976d2; padding: 0.15rem 0.4rem; border-radius: 10px; font-size: 0.75rem;">
+              {{ tag }}
+            </span>
+          </div>
           
-          <div v-if="isClubOwner(club)" style="display: flex; gap: 0.25rem;">
+          <div style="margin-left: auto; display: flex; gap: 0.25rem;" v-if="isClubOwner(club)">
             <button @click="startEditClub(club, $event)" 
                     style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: #28a745; color: white; border: none; border-radius: 3px;">
               編集
