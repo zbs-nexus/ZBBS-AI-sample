@@ -222,6 +222,10 @@ function toggleTag(tagName: string, isEdit = false) {
   if (index > -1) {
     targetTags.splice(index, 1);
   } else {
+    if (targetTags.length >= 5) {
+      alert('タグは最大5個まで選択できます');
+      return;
+    }
     targetTags.push(tagName);
   }
 }
@@ -316,7 +320,7 @@ onUnmounted(() => {
             <input v-model="newEvent.recruitmentDeadline" type="datetime-local" required />
           </div>
           <div class="form-group">
-            <label>タグ *</label>
+            <label>タグ * (最大5個)</label>
             <div style="margin-bottom: 0.5rem;">
               <select v-model="selectedCategory" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
                 <option value="">カテゴリーを選択してください</option>
@@ -392,7 +396,7 @@ onUnmounted(() => {
             </select>
             <input v-model="editEvent.recruitmentDeadline" type="datetime-local" placeholder="募集期限" required />
             <div>
-              <label><strong>タグ *</strong></label>
+              <label><strong>タグ * (最大5個)</strong></label>
               <div style="margin-bottom: 0.5rem; margin-top: 0.5rem;">
                 <select v-model="selectedEditCategory" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
                   <option value="">カテゴリーを選択してください</option>
