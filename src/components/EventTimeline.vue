@@ -356,6 +356,7 @@ onUnmounted(() => {
     <!-- スクロール可能なイベント一覧部分 -->
     <div v-if="!showCreateForm" style="flex: 1; overflow-y: auto; padding: 0.3rem 0.5rem; scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
       <div v-for="event in filteredEvents" :key="event.id" 
+           v-show="!editingEventId || editingEventId === event.id"
            style="border: 1px solid #ddd; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 4px; position: relative;"
            :style="{ 
              cursor: editingEventId === event.id ? 'default' : 'pointer',
