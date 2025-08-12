@@ -21,6 +21,7 @@ const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
 const categories = ref<string[]>([]);
 const selectedHobbyCategory = ref<string>('');
 const isEditing = ref(false);
+const upcomingEvents = ref<Array<Schema['Event']['type']>>([]);
 const editForm = ref({
   name: '',
   department: '',
@@ -207,9 +208,30 @@ function startEditing() {
   }
 }
 
+function loadUpcomingEvents() {
+  client.models.EventParticipant.observeQuery({
+    filter: { userId: { eq: props.user.userId } }
+  }).subscribe({
+    next: ({ items }) => {
+      const eventIds = items.map(p => p.eventId);
+      if (eventIds.length > 0) {
+        client.models.Event.list().then(({ data }) => {
+          const now = new Date();
+          upcomingEvents.value = data
+            .filter(event => eventIds.includes(event.id) && new Date(event.date) > now)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        });
+      } else {
+        upcomingEvents.value = [];
+      }
+    }
+  });
+}
+
 onMounted(() => {
   loadProfile();
   loadTagMaster();
+  loadUpcomingEvents();
 });
 
 onUnmounted(() => {
@@ -262,7 +284,20 @@ onUnmounted(() => {
           </p>
         </div>
         
+        <div style="margin-bottom: 1rem;">
+          <strong style="font-size: 0.9rem; color: #333;">参加予定イベント:</strong>
+          <div v-if="upcomingEvents.length" style="margin-top: 0.5rem;">
+            <div v-for="event in upcomingEvents" :key="event.id" 
+                 style="background: #e3f2fd; color: #1976d2; padding: 0.3rem 0.6rem; margin-right: 0.3rem; margin-bottom: 0.3rem; border-radius: 8px; font-size: 0.8rem; display: inline-block; border-left: 3px solid #1976d2;">
+              <div style="font-weight: bold;">{{ event.title }}</div>
+              <div style="font-size: 0.7rem; opacity: 0.8;">{{ new Date(event.date).toLocaleDateString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }}</div>
+            </div>
+          </div>
+          <p v-else style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">参加予定のイベントはありません</p>
+        </div>
+        
         <div>
+          <strong style="font-size: 0.9rem; color: #333;">趣味タグ:</strong>
           <div v-if="profile?.hobbyTags?.length" style="margin-top: 0.5rem;">
             <span v-for="(tag, index) in profile.hobbyTags" :key="index" 
                   style="background: #28a745; color: white; padding: 0.2rem 0.4rem; margin-right: 0.3rem; margin-bottom: 0.3rem; border-radius: 10px; font-size: 0.75rem; display: inline-block;">
