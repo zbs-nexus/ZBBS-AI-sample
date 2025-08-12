@@ -16,14 +16,16 @@ const emit = defineEmits<{
 }>();
 
 const clubs = ref<Array<Schema['Club']['type']>>([]);
+const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
+const categories = ref<string[]>([]);
 const showCreateForm = ref(false);
 const newClub = ref({
   name: '',
-  description: '',
   category: ''
 });
 
 let clubSubscription: any = null;
+let tagSubscription: any = null;
 
 function loadClubs() {
   if (clubSubscription) {
@@ -42,6 +44,22 @@ function loadClubs() {
   });
 }
 
+function loadTagMaster() {
+  if (tagSubscription) {
+    tagSubscription.unsubscribe();
+  }
+  
+  tagSubscription = client.models.TagMaster.observeQuery({
+    filter: { isActive: { eq: true } }
+  }).subscribe({
+    next: ({ items }) => {
+      tagMaster.value = items.sort((a, b) => a.name.localeCompare(b.name));
+      const allCategories = [...new Set(items.map(item => item.category))];
+      categories.value = allCategories.sort();
+    }
+  });
+}
+
 async function createClub() {
   if (!newClub.value.name) {
     alert('部活動名は必須です');
@@ -53,13 +71,12 @@ async function createClub() {
     await client.models.Club.create({
       id: customId,
       name: newClub.value.name,
-      description: newClub.value.description,
       category: newClub.value.category,
       createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
     });
     
     showCreateForm.value = false;
-    newClub.value = { name: '', description: '', category: '' };
+    newClub.value = { name: '', category: '' };
   } catch (error) {
     console.error('部活動作成エラー:', error);
     alert('部活動作成に失敗しました');
@@ -72,11 +89,15 @@ function showWikiPage(clubId: string) {
 
 onMounted(() => {
   loadClubs();
+  loadTagMaster();
 });
 
 onUnmounted(() => {
   if (clubSubscription) {
     clubSubscription.unsubscribe();
+  }
+  if (tagSubscription) {
+    tagSubscription.unsubscribe();
   }
 });
 </script>
@@ -108,19 +129,12 @@ onUnmounted(() => {
           <label>部活動名 *</label>
           <input v-model="newClub.name" placeholder="部活動名" required />
         </div>
-        <div class="form-group">
-          <label>説明</label>
-          <textarea v-model="newClub.description" placeholder="部活動の説明" rows="3"></textarea>
-        </div>
+
         <div class="form-group">
           <label>カテゴリ</label>
           <select v-model="newClub.category">
             <option value="">カテゴリを選択</option>
-            <option value="スポーツ">スポーツ</option>
-            <option value="文化">文化</option>
-            <option value="技術">技術</option>
-            <option value="趣味">趣味</option>
-            <option value="その他">その他</option>
+            <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
           </select>
         </div>
         <div class="form-group">
@@ -137,20 +151,11 @@ onUnmounted(() => {
            @mouseover="($event.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; ($event.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'"
            @mouseout="($event.currentTarget as HTMLElement).style.transform = 'translateY(0)'; ($event.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'">
         
-        <h3 style="margin: 0 0 0.5rem 0; color: #333; font-size: 1.1rem;">{{ club.name }}</h3>
+        <h3 style="margin: 0; color: #333; font-size: 1.1rem;">{{ club.name }}</h3>
         
-        <p v-if="club.description" 
-           style="margin: 0.5rem 0; color: #666; font-size: 0.9rem; line-height: 1.4;">
-          {{ club.description }}
-        </p>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-          <span v-if="club.category" 
-                style="background: #e3f2fd; color: #1976d2; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem;">
+        <div v-if="club.category" style="margin-top: 0.5rem;">
+          <span style="background: #e3f2fd; color: #1976d2; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem;">
             {{ club.category }}
-          </span>
-          <span style="color: #999; font-size: 0.8rem;">
-            Wikiを見る →
           </span>
         </div>
       </div>
