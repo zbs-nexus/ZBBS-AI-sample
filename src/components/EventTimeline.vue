@@ -29,26 +29,30 @@ const newEvent = ref({
   title: '',
   description: '',
   date: '',
+  endDate: '',
   location: '',
   maxParticipants: 10,
   tags: [] as string[],
-  targetAudience: ''
+  targetAudience: '',
+  recruitmentDeadline: ''
 });
 const editEvent = ref({
   title: '',
   description: '',
   date: '',
+  endDate: '',
   location: '',
   maxParticipants: 10,
   tags: [] as string[],
-  targetAudience: ''
+  targetAudience: '',
+  recruitmentDeadline: ''
 });
 
 function loadEvents() {
   client.models.Event.observeQuery().subscribe({
     next: ({ items }) => {
       console.log('イベントデータ取得:', items);
-      events.value = items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      events.value = items.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     },
     error: (error) => {
       console.error('イベントデータ取得エラー:', error);
@@ -93,8 +97,13 @@ function getTagsByCategory(category: string) {
 }
 
 async function createEvent() {
-  if (!newEvent.value.title || !newEvent.value.date) {
-    alert('イベント名と開催日時は必須です');
+  if (!newEvent.value.title || !newEvent.value.date || !newEvent.value.endDate || !newEvent.value.location || !newEvent.value.recruitmentDeadline) {
+    alert('イベント名、開催日時、終了日時、開催場所、募集期限は必須です');
+    return;
+  }
+  
+  if (newEvent.value.endDate && new Date(newEvent.value.endDate) <= new Date(newEvent.value.date)) {
+    alert('終了日時は開催日時より後の日時で設定してください');
     return;
   }
   
@@ -109,17 +118,19 @@ async function createEvent() {
     title: newEvent.value.title,
     description: newEvent.value.description,
     date: new Date(newEvent.value.date).toISOString(),
+    endDate: newEvent.value.endDate ? new Date(newEvent.value.endDate).toISOString() : null,
     location: newEvent.value.location,
     maxParticipants: newEvent.value.maxParticipants,
     tags: newEvent.value.tags,
     targetAudience: newEvent.value.targetAudience,
+    recruitmentDeadline: newEvent.value.recruitmentDeadline ? new Date(newEvent.value.recruitmentDeadline).toISOString() : null,
     createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
   };
   
   client.models.Event.create(eventData).then((result) => {
     console.log('イベント作成成功:', result);
     showCreateForm.value = false;
-    newEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
+    newEvent.value = { title: '', description: '', date: '', endDate: '', location: '', maxParticipants: 10, tags: [], targetAudience: '', recruitmentDeadline: '' };
   }).catch((error) => {
     console.error('イベント作成エラー:', error);
     alert('イベント作成に失敗しました');
@@ -157,16 +168,23 @@ function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
     title: event.title || '',
     description: event.description || '',
     date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
+    endDate: event.endDate ? new Date(event.endDate).toISOString().slice(0, 16) : '',
     location: event.location || '',
     maxParticipants: event.maxParticipants || 10,
     tags: (event.tags || []).filter((tag): tag is string => tag !== null),
-    targetAudience: event.targetAudience || ''
+    targetAudience: event.targetAudience || '',
+    recruitmentDeadline: event.recruitmentDeadline ? new Date(event.recruitmentDeadline).toISOString().slice(0, 16) : ''
   };
 }
 
 function updateEvent() {
-  if (!editEvent.value.title || !editEvent.value.date) {
-    alert('イベント名と開催日時は必須です');
+  if (!editEvent.value.title || !editEvent.value.date || !editEvent.value.endDate || !editEvent.value.location || !editEvent.value.recruitmentDeadline) {
+    alert('イベント名、開催日時、終了日時、開催場所、募集期限は必須です');
+    return;
+  }
+  
+  if (editEvent.value.endDate && new Date(editEvent.value.endDate) <= new Date(editEvent.value.date)) {
+    alert('終了日時は開催日時より後の日時で設定してください');
     return;
   }
   
@@ -180,16 +198,18 @@ function updateEvent() {
     title: editEvent.value.title,
     description: editEvent.value.description,
     date: new Date(editEvent.value.date).toISOString(),
+    endDate: editEvent.value.endDate ? new Date(editEvent.value.endDate).toISOString() : null,
     location: editEvent.value.location,
     maxParticipants: editEvent.value.maxParticipants,
     tags: editEvent.value.tags,
-    targetAudience: editEvent.value.targetAudience
+    targetAudience: editEvent.value.targetAudience,
+    recruitmentDeadline: editEvent.value.recruitmentDeadline ? new Date(editEvent.value.recruitmentDeadline).toISOString() : null
   };
   
   client.models.Event.update(eventData).then((result) => {
     console.log('イベント更新成功:', result);
     editingEventId.value = null;
-    editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
+    editEvent.value = { title: '', description: '', date: '', endDate: '', location: '', maxParticipants: 10, tags: [], targetAudience: '', recruitmentDeadline: '' };
   }).catch((error) => {
     console.error('イベント更新エラー:', error);
     alert('イベント更新に失敗しました');
@@ -208,7 +228,7 @@ function toggleTag(tagName: string, isEdit = false) {
 
 function cancelEdit() {
   editingEventId.value = null;
-  editEvent.value = { title: '', description: '', date: '', location: '', maxParticipants: 10, tags: [], targetAudience: '' };
+  editEvent.value = { title: '', description: '', date: '', endDate: '', location: '', maxParticipants: 10, tags: [], targetAudience: '', recruitmentDeadline: '' };
 }
 
 
@@ -219,6 +239,11 @@ const filteredEvents = computed(() => {
     event.tags?.some(tag => tag && tag.includes(searchTag.value))
   );
 });
+
+function isRecruitmentExpired(event: Schema['Event']['type']) {
+  if (!event.recruitmentDeadline) return false;
+  return new Date(event.recruitmentDeadline) < new Date();
+}
 
 onMounted(() => {
   loadEvents();
@@ -267,8 +292,12 @@ onUnmounted(() => {
             <input v-model="newEvent.date" type="datetime-local" required />
           </div>
           <div class="form-group">
-            <label>開催場所</label>
-            <input v-model="newEvent.location" placeholder="開催場所" />
+            <label>終了日時 *</label>
+            <input v-model="newEvent.endDate" type="datetime-local" required />
+          </div>
+          <div class="form-group">
+            <label>開催場所 *</label>
+            <input v-model="newEvent.location" placeholder="開催場所" required />
           </div>
           <div class="form-group">
             <label>最大参加者数</label>
@@ -281,6 +310,10 @@ onUnmounted(() => {
               <option value="どなたでも歓迎">どなたでも歓迎</option>
               <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label>募集期限 *</label>
+            <input v-model="newEvent.recruitmentDeadline" type="datetime-local" required />
           </div>
           <div class="form-group">
             <label>タグ *</label>
@@ -323,13 +356,18 @@ onUnmounted(() => {
     <!-- スクロール可能なイベント一覧部分 -->
     <div v-if="!showCreateForm" style="flex: 1; overflow-y: auto; padding: 0.3rem 0.5rem; scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
       <div v-for="event in filteredEvents" :key="event.id" 
-           style="border: 1px solid #ddd; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 4px; position: relative; background: white;"
-           :style="{ cursor: editingEventId === event.id ? 'default' : 'pointer' }"
+           v-show="!editingEventId || editingEventId === event.id"
+           style="border: 1px solid #ddd; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 4px; position: relative;"
+           :style="{ 
+             cursor: editingEventId === event.id ? 'default' : 'pointer',
+             background: isRecruitmentExpired(event) ? '#f5f5f5' : 'white',
+             opacity: isRecruitmentExpired(event) ? 0.6 : 1
+           }"
            @click="editingEventId !== event.id ? emit('showDetail', event.id) : null">
         
         <div v-if="isEventOwner(event) && editingEventId !== event.id" style="position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.25rem;">
           <button @click="startEditEvent(event, $event)"
-                  style="background: #fd7e14; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
+                  style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
             編集
           </button>
           <button @click="deleteEvent(event, $event)"
@@ -344,13 +382,15 @@ onUnmounted(() => {
             <input v-model="editEvent.title" placeholder="イベント名" required />
             <textarea v-model="editEvent.description" placeholder="説明" rows="3"></textarea>
             <input v-model="editEvent.date" type="datetime-local" required />
-            <input v-model="editEvent.location" placeholder="開催場所" />
+            <input v-model="editEvent.endDate" type="datetime-local" placeholder="終了日時" required />
+            <input v-model="editEvent.location" placeholder="開催場所" required />
             <input v-model="editEvent.maxParticipants" type="number" placeholder="最大参加者数" />
             <select v-model="editEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
               <option value="">参加対象者を選択</option>
               <option value="どなたでも歓迎">どなたでも歓迎</option>
               <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
             </select>
+            <input v-model="editEvent.recruitmentDeadline" type="datetime-local" placeholder="募集期限" required />
             <div>
               <label><strong>タグ *</strong></label>
               <div style="margin-bottom: 0.5rem; margin-top: 0.5rem;">
