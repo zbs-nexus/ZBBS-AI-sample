@@ -2,25 +2,7 @@ const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
 
 const ses = new SESClient({ region: process.env.AWS_REGION });
 
-interface NotificationRequest {
-  representativeEmail: string;
-  applicantName: string;
-  applicantDepartment: string;
-  applicantSection: string;
-  clubName: string;
-}
-
-interface LambdaEvent {
-  body?: string;
-}
-
-interface LambdaResult {
-  statusCode: number;
-  headers: Record<string, string>;
-  body: string;
-}
-
-exports.handler = async (event: LambdaEvent): Promise<LambdaResult> => {
+exports.handler = async (event: any) => {
   console.log('Club application notification triggered:', event);
   
   try {
@@ -30,7 +12,7 @@ exports.handler = async (event: LambdaEvent): Promise<LambdaResult> => {
       applicantDepartment, 
       applicantSection, 
       clubName 
-    }: NotificationRequest = JSON.parse(event.body || '{}');
+    } = JSON.parse(event.body || '{}');
 
     const message = `【部活動参加申請通知】
 
