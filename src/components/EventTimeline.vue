@@ -95,8 +95,8 @@ function getTagsByCategory(category: string) {
 }
 
 async function createEvent() {
-  if (!newEvent.value.title || !newEvent.value.date) {
-    alert('イベント名と開催日時は必須です');
+  if (!newEvent.value.title || !newEvent.value.date || !newEvent.value.endDate || !newEvent.value.location) {
+    alert('イベント名、開催日時、終了日時、開催場所は必須です');
     return;
   }
   
@@ -174,8 +174,8 @@ function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
 }
 
 function updateEvent() {
-  if (!editEvent.value.title || !editEvent.value.date) {
-    alert('イベント名と開催日時は必須です');
+  if (!editEvent.value.title || !editEvent.value.date || !editEvent.value.endDate || !editEvent.value.location) {
+    alert('イベント名、開催日時、終了日時、開催場所は必須です');
     return;
   }
   
@@ -282,12 +282,12 @@ onUnmounted(() => {
             <input v-model="newEvent.date" type="datetime-local" required />
           </div>
           <div class="form-group">
-            <label>終了日時</label>
-            <input v-model="newEvent.endDate" type="datetime-local" />
+            <label>終了日時 *</label>
+            <input v-model="newEvent.endDate" type="datetime-local" required />
           </div>
           <div class="form-group">
-            <label>開催場所</label>
-            <input v-model="newEvent.location" placeholder="開催場所" />
+            <label>開催場所 *</label>
+            <input v-model="newEvent.location" placeholder="開催場所" required />
           </div>
           <div class="form-group">
             <label>最大参加者数</label>
@@ -348,7 +348,7 @@ onUnmounted(() => {
         
         <div v-if="isEventOwner(event) && editingEventId !== event.id" style="position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.25rem;">
           <button @click="startEditEvent(event, $event)"
-                  style="background: #fd7e14; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
+                  style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
             編集
           </button>
           <button @click="deleteEvent(event, $event)"
@@ -363,8 +363,8 @@ onUnmounted(() => {
             <input v-model="editEvent.title" placeholder="イベント名" required />
             <textarea v-model="editEvent.description" placeholder="説明" rows="3"></textarea>
             <input v-model="editEvent.date" type="datetime-local" required />
-            <input v-model="editEvent.endDate" type="datetime-local" placeholder="終了日時" />
-            <input v-model="editEvent.location" placeholder="開催場所" />
+            <input v-model="editEvent.endDate" type="datetime-local" placeholder="終了日時" required />
+            <input v-model="editEvent.location" placeholder="開催場所" required />
             <input v-model="editEvent.maxParticipants" type="number" placeholder="最大参加者数" />
             <select v-model="editEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
               <option value="">参加対象者を選択</option>
