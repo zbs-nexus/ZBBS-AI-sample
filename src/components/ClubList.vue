@@ -76,6 +76,10 @@ function toggleTag(tagName: string) {
   if (index > -1) {
     newClub.value.tags.splice(index, 1);
   } else {
+    if (newClub.value.tags.length >= 1) {
+      alert('タグは最大1個まで選択できます');
+      return;
+    }
     newClub.value.tags.push(tagName);
   }
 }
@@ -85,6 +89,10 @@ function toggleEditTag(tagName: string) {
   if (index > -1) {
     editClub.value.tags.splice(index, 1);
   } else {
+    if (editClub.value.tags.length >= 1) {
+      alert('タグは最大1個まで選択できます');
+      return;
+    }
     editClub.value.tags.push(tagName);
   }
 }
@@ -234,7 +242,7 @@ onUnmounted(() => {
         </div>
         
         <div v-if="selectedCategory" class="form-group">
-          <label>タグ選択 *</label>
+          <label>タグ選択 * (最大1個)</label>
           <div style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
             <div v-for="tag in getTagsByCategory(selectedCategory)" :key="tag.id" style="margin-bottom: 0.5rem;">
               <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
@@ -277,7 +285,7 @@ onUnmounted(() => {
         </div>
         
         <div v-if="selectedEditCategory" class="form-group">
-          <label>タグ選択</label>
+          <label>タグ選択 (最大1個)</label>
           <div style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px; padding: 0.5rem; background: rgba(255, 255, 255, 0.9);">
             <div v-for="tag in getTagsByCategory(selectedEditCategory)" :key="tag.id" style="margin-bottom: 0.5rem;">
               <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
@@ -313,7 +321,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="!showCreateForm && !editingClubId" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.25rem;">
+    <div v-if="!showCreateForm && !editingClubId" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.1rem;">
       <div v-for="club in clubs" :key="club.id" 
            class="card club-card" 
            @click="showWikiPage(club.id)"

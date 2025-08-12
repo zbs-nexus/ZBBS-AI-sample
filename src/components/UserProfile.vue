@@ -155,6 +155,10 @@ function toggleHobbyTag(tagName: string) {
   if (index > -1) {
     editForm.value.hobbyTags.splice(index, 1);
   } else {
+    if (editForm.value.hobbyTags.length >= 10) {
+      alert('趣味タグは最大10個まで選択できます');
+      return;
+    }
     editForm.value.hobbyTags.push(tagName);
   }
 }
@@ -347,7 +351,7 @@ onUnmounted(() => {
           </div>
           
           <div class="form-group">
-            <label><strong>趣味タグ:</strong></label>
+            <label><strong>趣味タグ: (最大10個)</strong></label>
             <div style="margin-bottom: 0.5rem;">
               <select v-model="selectedHobbyCategory" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
                 <option value="">カテゴリーを選択してください</option>
