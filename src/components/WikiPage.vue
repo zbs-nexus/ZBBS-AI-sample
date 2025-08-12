@@ -155,31 +155,14 @@ async function applyToClub() {
       status: 'pending'
     });
     
-    // メール通知送信
-    try {
-      const { data } = await client.models.ClubApplication.create({
-        clubId: props.clubId!,
-        applicantUserId: props.user.userId,
-        status: 'pending'
-      });
-      
-      // Lambda関数を呼び出し
-      await fetch(`https://YOUR_API_GATEWAY_URL/club-application-notification`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          representativeEmail: club.value?.representativeEmail,
-          applicantName: userProfile.value.name,
-          applicantDepartment: userProfile.value.department,
-          applicantSection: userProfile.value.section,
-          clubName: club.value?.name
-        })
-      });
-    } catch (emailError) {
-      console.error('メール通知エラー:', emailError);
-    }
+    // メール通知ログ出力
+    console.log('参加申請通知:', {
+      representativeEmail: club.value?.representativeEmail,
+      applicantName: userProfile.value.name,
+      applicantDepartment: userProfile.value.department,
+      applicantSection: userProfile.value.section,
+      clubName: club.value?.name
+    });
     
     hasApplied.value = true;
     alert('参加申請を送信しました');
