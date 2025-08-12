@@ -45,6 +45,25 @@ const schema = a.schema({
       currentValue: a.integer().default(0),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
+    
+  Club: a
+    .model({
+      name: a.string().required(),
+      description: a.string(),
+      category: a.string(),
+      isActive: a.boolean().default(true),
+      createdBy: a.string().required(),
+    })
+    .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
+    
+  WikiPage: a
+    .model({
+      clubId: a.id().required(),
+      title: a.string().required(),
+      content: a.string(),
+      lastEditedBy: a.string().required(),
+    })
+    .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
