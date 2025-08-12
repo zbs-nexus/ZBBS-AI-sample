@@ -184,7 +184,7 @@ async function updateClub() {
     });
     
     editingClubId.value = null;
-    editClub.value = { name: '', tags: [] };
+    editClub.value = { name: '', tags: [], representativeEmail: '' };
   } catch (error) {
     console.error('部活動更新エラー:', error);
     alert('部活動更新に失敗しました');
