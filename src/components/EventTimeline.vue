@@ -97,8 +97,8 @@ function getTagsByCategory(category: string) {
 }
 
 async function createEvent() {
-  if (!newEvent.value.title || !newEvent.value.date || !newEvent.value.endDate || !newEvent.value.location) {
-    alert('イベント名、開催日時、終了日時、開催場所は必須です');
+  if (!newEvent.value.title || !newEvent.value.date || !newEvent.value.endDate || !newEvent.value.location || !newEvent.value.recruitmentDeadline) {
+    alert('イベント名、開催日時、終了日時、開催場所、募集期限は必須です');
     return;
   }
   
@@ -178,8 +178,8 @@ function startEditEvent(event: Schema['Event']['type'], clickEvent: Event) {
 }
 
 function updateEvent() {
-  if (!editEvent.value.title || !editEvent.value.date || !editEvent.value.endDate || !editEvent.value.location) {
-    alert('イベント名、開催日時、終了日時、開催場所は必須です');
+  if (!editEvent.value.title || !editEvent.value.date || !editEvent.value.endDate || !editEvent.value.location || !editEvent.value.recruitmentDeadline) {
+    alert('イベント名、開催日時、終了日時、開催場所、募集期限は必須です');
     return;
   }
   
@@ -312,8 +312,8 @@ onUnmounted(() => {
             </select>
           </div>
           <div class="form-group">
-            <label>募集期限</label>
-            <input v-model="newEvent.recruitmentDeadline" type="datetime-local" />
+            <label>募集期限 *</label>
+            <input v-model="newEvent.recruitmentDeadline" type="datetime-local" required />
           </div>
           <div class="form-group">
             <label>タグ *</label>
@@ -354,7 +354,7 @@ onUnmounted(() => {
     </div>
 
     <!-- スクロール可能なイベント一覧部分 -->
-    <div v-if="!showCreateForm" style="flex: 1; overflow-y: auto; padding: 0.3rem 0.5rem; scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
+    <div v-if="!showCreateForm && !editingEventId" style="flex: 1; overflow-y: auto; padding: 0.3rem 0.5rem; scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
       <div v-for="event in filteredEvents" :key="event.id" 
            style="border: 1px solid #ddd; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 4px; position: relative;"
            :style="{ 
@@ -389,7 +389,7 @@ onUnmounted(() => {
               <option value="どなたでも歓迎">どなたでも歓迎</option>
               <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
             </select>
-            <input v-model="editEvent.recruitmentDeadline" type="datetime-local" placeholder="募集期限" />
+            <input v-model="editEvent.recruitmentDeadline" type="datetime-local" placeholder="募集期限" required />
             <div>
               <label><strong>タグ *</strong></label>
               <div style="margin-bottom: 0.5rem; margin-top: 0.5rem;">
