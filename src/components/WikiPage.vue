@@ -94,10 +94,12 @@ async function saveWiki() {
       });
     } else {
       // 新規ページを作成
+      if (!props.clubId) return;
+      
       const customId = await generateWikiId();
       await client.models.WikiPage.create({
         id: customId,
-        clubId: props.clubId!,
+        clubId: props.clubId,
         title: editForm.value.title,
         content: editForm.value.content,
         lastEditedBy: currentUser
@@ -148,9 +150,11 @@ async function applyToClub() {
     return;
   }
   
+  if (!props.clubId) return;
+  
   try {
     await client.models.ClubApplication.create({
-      clubId: props.clubId!,
+      clubId: props.clubId,
       applicantUserId: props.user.userId,
       status: 'pending'
     });
@@ -204,8 +208,64 @@ function isClubRepresentative() {
   return club.value?.representativeEmail === props.user.userId;
 }
 
+async function cancelApplication() {
+  if (!confirm('参加申請を取り消しますか？')) {
+    return;
+  }
+  
+  try {
+    if (!props.clubId) return;
+    
+    // 申請を削除
+    const { data: applications } = await client.models.ClubApplication.list({
+      filter: { 
+        clubId: { eq: props.clubId },
+        applicantUserId: { eq: props.user.userId }
+      }
+    });
+    
+    if (applications.length > 0) {
+      await client.models.ClubApplication.delete({ id: applications[0].id });
+      
+      // キャンセル通知メール送信
+      try {
+        const outputs = await import('../../amplify_outputs.json');
+        const functionUrl = (outputs as any).custom?.functionUrl;
+        
+        if (functionUrl && club.value?.representativeEmail) {
+          await fetch(functionUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              type: 'cancel',
+              representativeEmail: club.value.representativeEmail,
+              applicantName: userProfile.value?.name,
+              applicantDepartment: userProfile.value?.department,
+              applicantSection: userProfile.value?.section,
+              clubName: club.value.name
+            })
+          });
+          console.log('キャンセル通知送信成功');
+        }
+      } catch (emailError) {
+        console.error('キャンセル通知エラー:', emailError);
+      }
+      
+      hasApplied.value = false;
+      alert('参加申請を取り消しました');
+    }
+  } catch (error) {
+    console.error('申請取り消しエラー:', error);
+    alert('申請取り消しに失敗しました');
+  }
+}
+
 function showApplicationsList() {
-  emit('showApplications', props.clubId!);
+  if (props.clubId) {
+    emit('showApplications', props.clubId);
+  }
 }
 
 onMounted(() => {
@@ -261,9 +321,10 @@ onMounted(() => {
                     style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
               参加申請
             </button>
-            <span v-if="hasApplied && !isClubRepresentative()" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #6c757d; color: white; border-radius: 4px;">
-              申請済み
-            </span>
+            <button v-if="hasApplied && !isClubRepresentative()" @click="cancelApplication"
+                    style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              申請取り消し
+            </button>
           </div>
         </div>
       </div>

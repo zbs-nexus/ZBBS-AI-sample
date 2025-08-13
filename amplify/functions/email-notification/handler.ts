@@ -11,10 +11,23 @@ export const handler = async (event: any) => {
       applicantName, 
       applicantDepartment, 
       applicantSection, 
-      clubName 
+      clubName,
+      type = 'application'
     } = JSON.parse(event.body || '{}');
 
-    const message = `【部活動参加申請通知】
+    const isCancel = type === 'cancel';
+    const subject = isCancel ? `【ZBBS部】${clubName}への参加申請取り消し` : `【ZBBS部】${clubName}への参加申請`;
+    const message = isCancel 
+      ? `【部活動参加申請取り消し通知】
+
+部活動「${clubName}」への参加申請が取り消されました。
+
+申請者情報：
+・名前: ${applicantName}
+・所属: ${applicantDepartment} / ${applicantSection}
+
+申請者一覧で確認できます。`
+      : `【部活動参加申請通知】
 
 部活動「${clubName}」に新しい参加申請が届きました。
 
@@ -31,7 +44,7 @@ export const handler = async (event: any) => {
       },
       Message: {
         Subject: {
-          Data: `【ZBBS部】${clubName}への参加申請`,
+          Data: subject,
           Charset: 'UTF-8'
         },
         Body: {
