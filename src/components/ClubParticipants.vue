@@ -48,7 +48,23 @@ async function loadParticipants() {
     
     participants.value = participantData;
   } catch (error) {
-    console.error('参加者一覧取得エラー:', error);
+    console.error('申請者一覧取得エラー:', error);
+  }
+}
+
+async function approveParticipant(applicationId: string) {
+  try {
+    await client.models.ClubApplication.update({
+      id: applicationId,
+      status: 'approved'
+    });
+    
+    // 一覧を再読み込み
+    await loadParticipants();
+    alert('申請を承認しました');
+  } catch (error) {
+    console.error('承認エラー:', error);
+    alert('承認に失敗しました');
   }
 }
 
@@ -69,7 +85,7 @@ onMounted(() => {
         ← 戻る
       </button>
       
-      <h2 style="margin: 0; flex: 1;">{{ clubName }} - 参加者一覧</h2>
+      <h2 style="margin: 0; flex: 1;">{{ clubName }} - 申請者一覧</h2>
     </div>
 
     <div class="card">
@@ -84,11 +100,15 @@ onMounted(() => {
                   {{ participant.department }} / {{ participant.section }}
                 </p>
               </div>
-              <div style="display: flex; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span :style="`padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; color: white;
                   background: ${participant.status === 'pending' ? '#ffc107' : '#28a745'};`">
                   {{ participant.status === 'pending' ? '申請中' : '承認済み' }}
                 </span>
+                <button v-if="participant.status === 'pending'" @click="approveParticipant(participant.id)"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                  承認
+                </button>
               </div>
             </div>
           </div>
@@ -96,7 +116,7 @@ onMounted(() => {
       </div>
       
       <div v-else style="text-align: center; padding: 3rem; color: #666;">
-        <h3>参加申請者はまだいません</h3>
+        <h3>申請者はまだいません</h3>
         <p>参加申請があると、ここに表示されます</p>
       </div>
     </div>

@@ -376,7 +376,7 @@ onUnmounted(() => {
           <div style="margin-left: auto; display: flex; gap: 0.25rem;" v-if="isClubOwner(club)">
             <button @click="showParticipantsList(club, $event)" 
                     style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: #17a2b8; color: white; border: none; border-radius: 3px;">
-              参加者一覧
+              申請者一覧
             </button>
             <button @click="startEditClub(club, $event)" 
                     style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: #28a745; color: white; border: none; border-radius: 3px;">
