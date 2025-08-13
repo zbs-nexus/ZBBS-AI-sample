@@ -155,69 +155,41 @@ async function applyToClub() {
       status: 'pending'
     });
     
-    // メール通知送信（SES直接呼び出し）
+    // メール通知送信（Lambda関数呼び出し）
     try {
-      if (club.value?.representativeEmail) {
-        // AWS SDK for JavaScriptを使用してSESを直接呼び出し
-        const { SESClient, SendEmailCommand } = await import('@aws-sdk/client-ses');
-        const { fetchAuthSession } = await import('aws-amplify/auth');
-        
-        const session = await fetchAuthSession();
-        const credentials = session.credentials;
-        
-        if (credentials) {
-          const sesClient = new SESClient({
-            region: 'ap-northeast-1',
-            credentials: credentials
-          });
-          
-          const message = `【部活動参加申請通知】
-
-部活動「${club.value.name}」に新しい参加申請が届きました。
-
-申請者情報：
-・名前: ${userProfile.value.name}
-・所属: ${userProfile.value.department} / ${userProfile.value.section}
-
-申請者一覧から詳細をご確認ください。`;
-          
-          await sesClient.send(new SendEmailCommand({
-            Source: 'hieitom777@gmail.com',
-            Destination: {
-              ToAddresses: [club.value.representativeEmail]
-            },
-            Message: {
-              Subject: {
-                Data: `【ZBBS部】${club.value.name}への参加申請`,
-                Charset: 'UTF-8'
-              },
-              Body: {
-                Text: {
-                  Data: message,
-                  Charset: 'UTF-8'
-                }
-              }
-            }
-          }));
-          
-          console.log('メール通知送信成功');
-        }
-      }
-    } catch (emailError: any) {
-      console.log('SESエラー詳細:', {
-        errorName: emailError.name,
-        errorMessage: emailError.message,
-        errorCode: emailError.code,
-        fromEmail: 'hiei-tom@z-bs.co.jp',
-        toEmail: club.value?.representativeEmail,
-        region: 'ap-northeast-1'
-      });
+      // amplify_outputs.jsonからFunction URLを取得
+      const outputs = await import('../../amplify_outputs.json');
+      const functionUrl = (outputs as any).custom?.functionUrl;
       
-      if (emailError.name === 'MessageRejected' && emailError.message.includes('Email address is not verified')) {
-        console.log('サンドボックス環境: メールアドレスの検証が必要です');
+      if (functionUrl && club.value?.representativeEmail) {
+        const response = await fetch(functionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            representativeEmail: club.value.representativeEmail,
+            applicantName: userProfile.value.name,
+            applicantDepartment: userProfile.value.department,
+            applicantSection: userProfile.value.section,
+            clubName: club.value.name
+          })
+        });
+        
+        if (response.ok) {
+          console.log('メール通知送信成功');
+        } else {
+          console.error('メール通知送信エラー:', response.statusText);
+        }
       } else {
-        console.log('その他のSESエラー:', emailError);
+        console.log('メール通知ログ出力:', {
+          representativeEmail: club.value?.representativeEmail,
+          applicantName: userProfile.value.name,
+          clubName: club.value?.name
+        });
       }
+    } catch (emailError) {
+      console.error('メール通知エラー:', emailError);
     }
     
     hasApplied.value = true;
