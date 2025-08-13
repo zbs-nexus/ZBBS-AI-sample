@@ -25,7 +25,10 @@ const participants = ref<Array<{
 async function loadParticipants() {
   try {
     const { data: applications } = await client.models.ClubApplication.list({
-      filter: { clubId: { eq: props.clubId } }
+      filter: { 
+        clubId: { eq: props.clubId },
+        status: { eq: 'pending' }
+      }
     });
 
     const participantData = [];
