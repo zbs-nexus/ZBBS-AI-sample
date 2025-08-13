@@ -13,7 +13,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   back: [];
   showWiki: [clubId: string];
-}>();
+  showParticipants: [clubId: string, clubName: string];
+}>;
 
 const clubs = ref<Array<Schema['Club']['type']>>([]);
 const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
@@ -192,6 +193,11 @@ function cancelEdit() {
   editClub.value = { name: '', tags: [], representativeEmail: '' };
 }
 
+function showParticipantsList(club: Schema['Club']['type'], clickEvent: Event) {
+  clickEvent.stopPropagation();
+  emit('showParticipants', club.id, club.name);
+}
+
 function deleteClub(club: Schema['Club']['type'], clickEvent: Event) {
   clickEvent.stopPropagation();
   
@@ -368,6 +374,10 @@ onUnmounted(() => {
           </div>
           
           <div style="margin-left: auto; display: flex; gap: 0.25rem;" v-if="isClubOwner(club)">
+            <button @click="showParticipantsList(club, $event)" 
+                    style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: #17a2b8; color: white; border: none; border-radius: 3px;">
+              参加者一覧
+            </button>
             <button @click="startEditClub(club, $event)" 
                     style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: #28a745; color: white; border: none; border-radius: 3px;">
               編集

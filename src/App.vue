@@ -8,6 +8,7 @@ import UserProfile from './components/UserProfile.vue';
 import ClubList from './components/ClubList.vue';
 import WikiPage from './components/WikiPage.vue';
 import ClubApplications from './components/ClubApplications.vue';
+import ClubParticipants from './components/ClubParticipants.vue';
 import { seedTagMaster, addNewTags } from './utils/seedData';
 import { I18n } from 'aws-amplify/utils';
 
@@ -40,6 +41,7 @@ I18n.setLanguage('ja');
 const currentView = ref('timeline');
 const selectedEventId = ref<string | null>(null);
 const selectedClubId = ref<string | null>(null);
+const selectedClubName = ref<string>('');
 
 function showEventDetail(eventId: string) {
   selectedEventId.value = eventId;
@@ -71,6 +73,12 @@ function showEventDetailFromProfile(eventId: string) {
 function showClubApplications(clubId: string) {
   selectedClubId.value = clubId;
   currentView.value = 'applications';
+}
+
+function showClubParticipants(clubId: string, clubName: string) {
+  selectedClubId.value = clubId;
+  selectedClubName.value = clubName;
+  currentView.value = 'participants';
 }
 
 onMounted(() => {
@@ -119,6 +127,7 @@ onMounted(() => {
             :user="user" 
             @back="showTimeline" 
             @show-wiki="showWikiPage"
+            @show-participants="showClubParticipants"
           />
           
           <WikiPage 
@@ -134,6 +143,13 @@ onMounted(() => {
             :club-id="selectedClubId" 
             :user="user" 
             @back="() => { currentView = 'wiki' }" 
+          />
+          
+          <ClubParticipants 
+            v-if="currentView === 'participants'" 
+            :club-id="selectedClubId!" 
+            :club-name="selectedClubName" 
+            @back="showClubList" 
           />
         </div>
       </template>
