@@ -11,9 +11,9 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  back: () => void;
-  showWiki: (clubId: string) => void;
-  showParticipants: (clubId: string, clubName: string) => void;
+  back: [];
+  showWiki: [clubId: string];
+  showParticipants: [clubId: string, clubName: string];
 }>();
 
 const clubs = ref<Array<Schema['Club']['type']>>([]);
