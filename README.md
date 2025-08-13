@@ -1,26 +1,29 @@
-# ZBBS部イベント管理システム
+# ZBBS 部イベント管理システム
 
-社内部活・同好会のイベント管理を効率化するWebアプリケーションです。Vue.js + AWS Amplifyで構築されたモダンなSPAアプリケーションです。
+社内部活・同好会のイベント管理を効率化する Web アプリケーションです。Vue.js + AWS Amplify で構築されたモダンな SPA アプリケーションです。
 
 ## 概要
 
 このシステムは、社内の部活動やサークル活動におけるイベントの作成・管理・参加を一元化するプラットフォームです。ユーザーは趣味に基づいてイベントを検索し、興味のあるイベントに参加できます。
 
-## 主な機能
+## 主な機能　##
 
 ### 🎯 イベント管理
+
 - **イベント作成・編集・削除** - 日時、場所、参加人数制限の設定
-- **タグベース分類** - 9カテゴリ200+の趣味タグで分類
+- **タグベース分類** - 9 カテゴリ 200+の趣味タグで分類
 - **参加者管理** - リアルタイムな参加状況の確認
 - **検索・フィルタリング** - タグによる柔軟な検索機能
 
 ### 👤 ユーザー管理
+
 - **プロフィール管理** - 名前、部門、課、趣味タグの設定
 - **認証システム** - Amazon Cognito による安全な認証（日本語対応）
 - **参加履歴** - 過去の参加イベント履歴
 
 ### 🏷️ タグシステム
-- **9つのカテゴリ**
+
+- **9 つのカテゴリ**
   - IT・技術
   - デザイン・クリエイティブ
   - ビジネス・マーケティング
@@ -34,15 +37,17 @@
 ## 技術スタック
 
 ### フロントエンド
-- **Vue.js 3** - Composition API使用
+
+- **Vue.js 3** - Composition API 使用
 - **TypeScript** - 型安全な開発
 - **Vite** - 高速ビルドツール
-- **AWS Amplify UI Vue** - 認証UI（日本語化済み）
+- **AWS Amplify UI Vue** - 認証 UI（日本語化済み）
 
 ### バックエンド
+
 - **AWS Amplify Gen2** - フルスタックフレームワーク
 - **AWS AppSync** - GraphQL API
-- **Amazon DynamoDB** - NoSQLデータベース
+- **Amazon DynamoDB** - NoSQL データベース
 - **Amazon Cognito** - ユーザー認証・管理
 
 ## データベース設計
@@ -50,6 +55,7 @@
 ### テーブル構成
 
 #### Event（イベント）
+
 ```typescript
 {
   id: string
@@ -64,6 +70,7 @@
 ```
 
 #### UserProfile（ユーザープロフィール）
+
 ```typescript
 {
   id: string
@@ -77,32 +84,36 @@
 ```
 
 #### EventParticipant（イベント参加）
+
 ```typescript
 {
-  id: string
-  eventId: string       // イベントID
-  userId: string        // ユーザーID
+	id: string;
+	eventId: string; // イベントID
+	userId: string; // ユーザーID
 }
 ```
 
 #### TagMaster（タグマスタ）
+
 ```typescript
 {
-  id: string
-  name: string          // タグ名
-  category: string      // カテゴリ
-  isActive: boolean     // 有効フラグ
+	id: string;
+	name: string; // タグ名
+	category: string; // カテゴリ
+	isActive: boolean; // 有効フラグ
 }
 ```
 
 ## セットアップ
 
 ### 前提条件
-- Node.js 18以上
-- AWS CLI設定済み
+
+- Node.js 18 以上
+- AWS CLI 設定済み
 - AWS Amplify CLI
 
 ### インストール
+
 ```bash
 # リポジトリクローン
 git clone https://github.com/zbs-nexus/ZBBS-AI-sample.git
@@ -115,7 +126,8 @@ npm install
 npm run dev
 ```
 
-### AWS Amplifyセットアップ
+### AWS Amplify セットアップ
+
 ```bash
 # Amplifyプロジェクト初期化
 npx ampx sandbox
@@ -127,16 +139,19 @@ npx ampx pipeline-deploy --branch main --app-id YOUR_APP_ID
 ## 開発
 
 ### ローカル開発
+
 ```bash
 npm run dev
 ```
 
 ### ビルド
+
 ```bash
 npm run build
 ```
 
 ### 型チェック
+
 ```bash
 npm run type-check
 ```
@@ -144,10 +159,12 @@ npm run type-check
 ## デプロイ
 
 ### 自動デプロイ
-- GitHubのmainブランチへのプッシュで自動デプロイ
-- AWS Amplify Hostingによるフロントエンド配信
+
+- GitHub の main ブランチへのプッシュで自動デプロイ
+- AWS Amplify Hosting によるフロントエンド配信
 
 ### 手動デプロイ
+
 ```bash
 # フロントエンドビルド
 npm run build
@@ -159,15 +176,17 @@ npx ampx pipeline-deploy --branch main --app-id YOUR_APP_ID
 ## データ管理
 
 ### 初期データ投入
+
 ```typescript
 // 初期タグマスタデータ投入
-seedTagMaster()
+seedTagMaster();
 
 // 新規タグ追加
-addNewTags()
+addNewTags();
 ```
 
 ### タグマスタ更新手順
+
 1. `src/utils/seedData.ts`の`addNewTags`関数に新しいタグを追加
 2. `src/App.vue`で`addNewTags()`のコメントアウトを外す
 3. デプロイ実行
@@ -191,21 +210,25 @@ addNewTags()
 ## 主要コンポーネント
 
 ### App.vue
+
 - メインアプリケーション
 - 認証状態管理
 - ナビゲーション制御
 
 ### EventTimeline.vue
+
 - イベント一覧表示
 - イベント作成・編集
 - タグフィルタリング
 
 ### EventDetail.vue
+
 - イベント詳細表示
 - 参加・キャンセル機能
 - 参加者一覧
 
 ### UserProfile.vue
+
 - プロフィール編集
 - 趣味タグ選択
 - 部門・課情報管理
@@ -213,13 +236,13 @@ addNewTags()
 ## セキュリティ
 
 - **認証**: Amazon Cognito による多要素認証対応
-- **認可**: IAMロールベースのアクセス制御
-- **API**: API Key + Cognito User Poolsによる二重認証
-- **データ**: DynamoDB暗号化ストレージ
+- **認可**: IAM ロールベースのアクセス制御
+- **API**: API Key + Cognito User Pools による二重認証
+- **データ**: DynamoDB 暗号化ストレージ
 
 ## ライセンス
 
-このプロジェクトはMIT-0ライセンスの下で公開されています。詳細は[LICENSE](LICENSE)ファイルを参照してください。
+このプロジェクトは MIT-0 ライセンスの下で公開されています。詳細は[LICENSE](LICENSE)ファイルを参照してください。
 
 ## 貢献
 
