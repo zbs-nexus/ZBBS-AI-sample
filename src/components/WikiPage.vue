@@ -180,7 +180,7 @@ async function loadApprovedParticipants() {
           name: profile.name || '名前未設定',
           department: profile.department || '部門未設定',
           section: profile.section || '課未設定',
-          hobbyTags: profile.hobbyTags || []
+          hobbyTags: (profile.hobbyTags || []).filter((tag): tag is string => tag !== null)
         });
       }
     }
