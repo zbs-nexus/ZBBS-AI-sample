@@ -348,8 +348,8 @@ onMounted(() => {
       </button>
     </div>
 
-    <div v-if="!isEditing" class="card" style="flex: 1; overflow-y: auto; margin-bottom: 1rem;">
-      <div v-if="hasContent" style="overflow-y: auto; max-height: calc(100vh - 200px);">
+    <div v-if="!isEditing" class="card" style="flex: 1; overflow-y: auto; margin-bottom: 1rem; padding-bottom: 2rem;">
+      <div v-if="hasContent">
         <h1 style="margin: 0 0 1rem 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">
           {{ wikiPage?.title }}
         </h1>
