@@ -257,7 +257,9 @@ async function cancelApplication() {
 }
 
 function showApplicationsList() {
-  emit('showApplications', props.clubId!);
+  if (props.clubId) {
+    emit('showApplications', props.clubId);
+  }
 }
 
 onMounted(() => {
