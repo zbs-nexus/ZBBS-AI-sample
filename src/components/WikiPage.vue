@@ -24,6 +24,7 @@ const editForm = ref({
   content: ''
 });
 const hasApplied = ref(false);
+const applicationStatus = ref<string>('');
 const userProfile = ref<Schema['UserProfile']['type'] | null>(null);
 const approvedParticipants = ref<Array<{
   name: string;
@@ -145,7 +146,13 @@ function checkApplicationStatus() {
       applicantUserId: { eq: props.user.userId }
     }
   }).then(({ data }) => {
-    hasApplied.value = data.length > 0;
+    if (data.length > 0) {
+      hasApplied.value = true;
+      applicationStatus.value = data[0].status || 'pending';
+    } else {
+      hasApplied.value = false;
+      applicationStatus.value = '';
+    }
   });
 }
 
@@ -371,10 +378,14 @@ onMounted(() => {
                     style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
               参加申請
             </button>
-            <button v-if="hasApplied && !isClubRepresentative()" @click="cancelApplication"
+            <button v-if="hasApplied && applicationStatus === 'pending' && !isClubRepresentative()" @click="cancelApplication"
                     style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
               申請取り消し
             </button>
+            <span v-if="hasApplied && applicationStatus === 'approved' && !isClubRepresentative()" 
+                  style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #6c757d; color: white; border-radius: 4px; cursor: not-allowed;">
+              参加済み
+            </span>
           </div>
         </div>
       </div>
