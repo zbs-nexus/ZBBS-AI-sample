@@ -30,6 +30,7 @@ const approvedParticipants = ref<Array<{
   name: string;
   department: string;
   section: string;
+  hobbyTags: string[];
 }>>([]);
 
 const hasContent = computed(() => wikiPage.value && wikiPage.value.content);
@@ -178,7 +179,8 @@ async function loadApprovedParticipants() {
         participantData.push({
           name: profile.name || '名前未設定',
           department: profile.department || '部門未設定',
-          section: profile.section || '課未設定'
+          section: profile.section || '課未設定',
+          hobbyTags: profile.hobbyTags || []
         });
       }
     }
@@ -323,7 +325,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div style="height: 100vh; overflow-y: auto; padding: 1rem; box-sizing: border-box;">
+  <div style="height: 100vh; padding: 1rem; box-sizing: border-box; display: flex; flex-direction: column;">
     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center;">
       <button @click="emit('back')" 
               style="padding: 0.3rem 0.6rem; font-size: 0.8rem; font-weight: bold;
@@ -346,7 +348,7 @@ onMounted(() => {
       </button>
     </div>
 
-    <div v-if="!isEditing" class="card" style="max-height: 80vh; overflow-y: auto;">
+    <div v-if="!isEditing" class="card" style="flex: 1; overflow-y: auto; margin-bottom: 1rem;">
       <div v-if="hasContent">
         <h1 style="margin: 0 0 1rem 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">
           {{ wikiPage?.title }}
@@ -358,11 +360,21 @@ onMounted(() => {
         
         <div v-if="approvedParticipants.length > 0" style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
           <h3 style="margin: 0 0 1rem 0; color: #333; font-size: 1rem;">参加者一覧 ({{ approvedParticipants.length }}名)</h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem;">
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
             <div v-for="participant in approvedParticipants" :key="participant.name" 
-                 style="padding: 0.5rem; background: white; border-radius: 4px; border: 1px solid #e0e0e0;">
-              <div style="font-weight: bold; color: #333; margin-bottom: 0.2rem;">{{ participant.name }}</div>
-              <div style="font-size: 0.8rem; color: #666;">{{ participant.department }} / {{ participant.section }}</div>
+                 style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: white; border-radius: 8px; border: 1px solid #e0e0e0;">
+              <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                <div style="min-width: 120px;">
+                  <div style="font-weight: bold; color: #333; margin-bottom: 0.2rem;">{{ participant.name }}</div>
+                  <div style="font-size: 0.8rem; color: #666;">{{ participant.department }} / {{ participant.section }}</div>
+                </div>
+                <div v-if="participant.hobbyTags.length > 0" style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                  <span v-for="tag in participant.hobbyTags" :key="tag"
+                        style="background: #e3f2fd; color: #1976d2; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; white-space: nowrap;">
+                    {{ tag }}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
