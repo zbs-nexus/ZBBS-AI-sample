@@ -13,6 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   back: [];
+  showApplications: [clubId: string];
 }>();
 
 const club = ref<Schema['Club']['type'] | null>(null);
@@ -22,6 +23,8 @@ const editForm = ref({
   title: '',
   content: ''
 });
+const hasApplied = ref(false);
+const userProfile = ref<Schema['UserProfile']['type'] | null>(null);
 
 const hasContent = computed(() => wikiPage.value && wikiPage.value.content);
 
@@ -118,9 +121,98 @@ function cancelEdit() {
   }
 }
 
+function loadUserProfile() {
+  client.models.UserProfile.list({
+    filter: { userId: { eq: props.user.userId } }
+  }).then(({ data }) => {
+    userProfile.value = data.length > 0 ? data[0] : null;
+  });
+}
+
+function checkApplicationStatus() {
+  if (!props.clubId) return;
+  
+  client.models.ClubApplication.list({
+    filter: { 
+      clubId: { eq: props.clubId },
+      applicantUserId: { eq: props.user.userId }
+    }
+  }).then(({ data }) => {
+    hasApplied.value = data.length > 0;
+  });
+}
+
+async function applyToClub() {
+  if (!userProfile.value || !userProfile.value.name || !userProfile.value.department || !userProfile.value.section) {
+    alert('参加申請にはプロフィールの名前、部門、課/グループの設定が必要です');
+    return;
+  }
+  
+  try {
+    await client.models.ClubApplication.create({
+      clubId: props.clubId!,
+      applicantUserId: props.user.userId,
+      status: 'pending'
+    });
+    
+    // メール通知送信（Lambda関数呼び出し）
+    try {
+      // amplify_outputs.jsonからFunction URLを取得
+      const outputs = await import('../../amplify_outputs.json');
+      const functionUrl = (outputs as any).custom?.functionUrl;
+      
+      if (functionUrl && club.value?.representativeEmail) {
+        const response = await fetch(functionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            representativeEmail: club.value.representativeEmail,
+            applicantName: userProfile.value.name,
+            applicantDepartment: userProfile.value.department,
+            applicantSection: userProfile.value.section,
+            clubName: club.value.name
+          })
+        });
+        
+        if (response.ok) {
+          console.log('メール通知送信成功');
+        } else {
+          console.error('メール通知送信エラー:', response.statusText);
+        }
+      } else {
+        console.log('メール通知ログ出力:', {
+          representativeEmail: club.value?.representativeEmail,
+          applicantName: userProfile.value.name,
+          clubName: club.value?.name
+        });
+      }
+    } catch (emailError) {
+      console.error('メール通知エラー:', emailError);
+    }
+    
+    hasApplied.value = true;
+    alert('参加申請を送信しました');
+  } catch (error) {
+    console.error('参加申請エラー:', error);
+    alert('参加申請に失敗しました');
+  }
+}
+
+function isClubRepresentative() {
+  return club.value?.representativeEmail === props.user.userId;
+}
+
+function showApplicationsList() {
+  emit('showApplications', props.clubId!);
+}
+
 onMounted(() => {
   loadClub();
   loadWikiPage();
+  loadUserProfile();
+  checkApplicationStatus();
 });
 </script>
 
@@ -158,8 +250,21 @@ onMounted(() => {
           {{ wikiPage?.content }}
         </div>
         
-        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #666; font-size: 0.9rem;">
-          最終更新: {{ wikiPage?.lastEditedBy }} ({{ new Date(wikiPage?.updatedAt || '').toLocaleString() }})
+        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #666; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
+          <span>最終更新: {{ wikiPage?.lastEditedBy }} ({{ new Date(wikiPage?.updatedAt || '').toLocaleString() }})</span>
+          <div style="display: flex; gap: 0.5rem;">
+            <button v-if="isClubRepresentative()" @click="showApplicationsList"
+                    style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              申請者一覧
+            </button>
+            <button v-if="!hasApplied && !isClubRepresentative()" @click="applyToClub"
+                    style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              参加申請
+            </button>
+            <span v-if="hasApplied && !isClubRepresentative()" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #6c757d; color: white; border-radius: 4px;">
+              申請済み
+            </span>
+          </div>
         </div>
       </div>
       
