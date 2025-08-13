@@ -107,6 +107,11 @@ async function createEvent() {
     return;
   }
   
+  if (newEvent.value.recruitmentDeadline && new Date(newEvent.value.recruitmentDeadline) >= new Date(newEvent.value.date)) {
+    alert('募集期限は開催日時より前の日時で設定してください');
+    return;
+  }
+  
   if (newEvent.value.tags.length === 0) {
     alert('タグを少なくとも1つ追加してください');
     return;
@@ -185,6 +190,11 @@ function updateEvent() {
   
   if (editEvent.value.endDate && new Date(editEvent.value.endDate) <= new Date(editEvent.value.date)) {
     alert('終了日時は開催日時より後の日時で設定してください');
+    return;
+  }
+  
+  if (editEvent.value.recruitmentDeadline && new Date(editEvent.value.recruitmentDeadline) >= new Date(editEvent.value.date)) {
+    alert('募集期限は開催日時より前の日時で設定してください');
     return;
   }
   

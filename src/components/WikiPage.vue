@@ -24,7 +24,13 @@ const editForm = ref({
   content: ''
 });
 const hasApplied = ref(false);
+const applicationStatus = ref<string>('');
 const userProfile = ref<Schema['UserProfile']['type'] | null>(null);
+const approvedParticipants = ref<Array<{
+  name: string;
+  department: string;
+  section: string;
+}>>([]);
 
 const hasContent = computed(() => wikiPage.value && wikiPage.value.content);
 
@@ -140,8 +146,47 @@ function checkApplicationStatus() {
       applicantUserId: { eq: props.user.userId }
     }
   }).then(({ data }) => {
-    hasApplied.value = data.length > 0;
+    if (data.length > 0) {
+      hasApplied.value = true;
+      applicationStatus.value = data[0].status || 'pending';
+    } else {
+      hasApplied.value = false;
+      applicationStatus.value = '';
+    }
   });
+}
+
+async function loadApprovedParticipants() {
+  if (!props.clubId) return;
+  
+  try {
+    const { data: applications } = await client.models.ClubApplication.list({
+      filter: { 
+        clubId: { eq: props.clubId },
+        status: { eq: 'approved' }
+      }
+    });
+
+    const participantData = [];
+    for (const app of applications) {
+      const { data: profiles } = await client.models.UserProfile.list({
+        filter: { userId: { eq: app.applicantUserId } }
+      });
+      
+      if (profiles.length > 0) {
+        const profile = profiles[0];
+        participantData.push({
+          name: profile.name || '名前未設定',
+          department: profile.department || '部門未設定',
+          section: profile.section || '課未設定'
+        });
+      }
+    }
+    
+    approvedParticipants.value = participantData;
+  } catch (error) {
+    console.error('参加者一覧取得エラー:', error);
+  }
 }
 
 async function applyToClub() {
@@ -273,6 +318,7 @@ onMounted(() => {
   loadWikiPage();
   loadUserProfile();
   checkApplicationStatus();
+  loadApprovedParticipants();
 });
 </script>
 
@@ -300,7 +346,7 @@ onMounted(() => {
       </button>
     </div>
 
-    <div v-if="!isEditing" class="card">
+    <div v-if="!isEditing" class="card" style="max-height: 80vh; overflow-y: auto;">
       <div v-if="hasContent">
         <h1 style="margin: 0 0 1rem 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">
           {{ wikiPage?.title }}
@@ -308,6 +354,17 @@ onMounted(() => {
         
         <div style="line-height: 1.6; white-space: pre-wrap; color: #444;">
           {{ wikiPage?.content }}
+        </div>
+        
+        <div v-if="approvedParticipants.length > 0" style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+          <h3 style="margin: 0 0 1rem 0; color: #333; font-size: 1rem;">参加者一覧 ({{ approvedParticipants.length }}名)</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem;">
+            <div v-for="participant in approvedParticipants" :key="participant.name" 
+                 style="padding: 0.5rem; background: white; border-radius: 4px; border: 1px solid #e0e0e0;">
+              <div style="font-weight: bold; color: #333; margin-bottom: 0.2rem;">{{ participant.name }}</div>
+              <div style="font-size: 0.8rem; color: #666;">{{ participant.department }} / {{ participant.section }}</div>
+            </div>
+          </div>
         </div>
         
         <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #666; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
@@ -321,10 +378,14 @@ onMounted(() => {
                     style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
               参加申請
             </button>
-            <button v-if="hasApplied && !isClubRepresentative()" @click="cancelApplication"
+            <button v-if="hasApplied && applicationStatus === 'pending' && !isClubRepresentative()" @click="cancelApplication"
                     style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
               申請取り消し
             </button>
+            <span v-if="hasApplied && applicationStatus === 'approved' && !isClubRepresentative()" 
+                  style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #6c757d; color: white; border-radius: 4px; cursor: not-allowed;">
+              参加済み
+            </span>
           </div>
         </div>
       </div>
