@@ -11,10 +11,10 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  back: [];
-  showWiki: [clubId: string];
-  showParticipants: [clubId: string, clubName: string];
-}>;
+  back: () => void;
+  showWiki: (clubId: string) => void;
+  showParticipants: (clubId: string, clubName: string) => void;
+}>();
 
 const clubs = ref<Array<Schema['Club']['type']>>([]);
 const tagMaster = ref<Array<Schema['TagMaster']['type']>>([]);
