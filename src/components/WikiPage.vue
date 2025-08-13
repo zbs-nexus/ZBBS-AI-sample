@@ -94,10 +94,12 @@ async function saveWiki() {
       });
     } else {
       // 新規ページを作成
+      if (!props.clubId) return;
+      
       const customId = await generateWikiId();
       await client.models.WikiPage.create({
         id: customId,
-        clubId: props.clubId!,
+        clubId: props.clubId,
         title: editForm.value.title,
         content: editForm.value.content,
         lastEditedBy: currentUser
@@ -148,9 +150,11 @@ async function applyToClub() {
     return;
   }
   
+  if (!props.clubId) return;
+  
   try {
     await client.models.ClubApplication.create({
-      clubId: props.clubId!,
+      clubId: props.clubId,
       applicantUserId: props.user.userId,
       status: 'pending'
     });
@@ -210,6 +214,8 @@ async function cancelApplication() {
   }
   
   try {
+    if (!props.clubId) return;
+    
     // 申請を削除
     const { data: applications } = await client.models.ClubApplication.list({
       filter: { 
