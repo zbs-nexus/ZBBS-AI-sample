@@ -96,7 +96,7 @@ onMounted(() => {
         <nav style="padding: 1rem; border-bottom: 1px solid #ccc; display: flex; gap: 0.5rem; align-items: center; background: white; position: sticky; top: 0; z-index: 100; border-radius: 16px;">
           <img src="/src/assets/logo.png" alt="ZBBS部" style="height: 80px; width: auto;" />
           <button @click="showTimeline">イベント一覧</button>
-          <button @click="showClubList">部活動</button>
+          <button @click="showClubList">部活動一覧</button>
           <button @click="showProfile">プロフィール</button>
         </nav>
         
