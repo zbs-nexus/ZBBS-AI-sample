@@ -243,7 +243,7 @@ onUnmounted(() => {
         ← 戻る
       </button>
       
-      <h2 style="margin: 0; flex: 1;">部活動一覧</h2>
+      <div style="flex: 1;"></div>
       
       <button @click="showCreateForm = !showCreateForm" 
               style="padding: 0.4rem 0.8rem; font-size: 0.9rem; background: #f57c00; color: white; border: none; border-radius: 4px;">

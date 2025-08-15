@@ -336,7 +336,7 @@ onMounted(() => {
         ← 戻る
       </button>
       
-      <h2 style="margin: 0; flex: 1;">{{ club?.name }} Wiki</h2>
+      <div style="flex: 1;"></div>
       
       <button v-if="!isEditing" @click="startEditing" 
               style="padding: 0.3rem 0.6rem; font-size: 0.8rem; font-weight: bold;
