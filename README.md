@@ -6,7 +6,7 @@
 
 このシステムは、社内の部活動やサークル活動におけるイベントの作成・管理・参加を一元化するプラットフォームです。ユーザーは趣味に基づいてイベントを検索し、興味のあるイベントに参加できます。
 
-## 主な機能　##
+## 主な機能
 
 ### 🎯 イベント管理
 
@@ -14,10 +14,12 @@
 - **タグベース分類** - 9 カテゴリ 200+の趣味タグで分類
 - **参加者管理** - リアルタイムな参加状況の確認
 - **検索・フィルタリング** - タグによる柔軟な検索機能
+- **メール通知** - イベント参加・キャンセル時の自動通知
 
 ### 👤 ユーザー管理
 
 - **プロフィール管理** - 名前、部門、課、趣味タグの設定
+- **プロフィール画像** - S3による安全な画像アップロード・表示
 - **認証システム** - Amazon Cognito による安全な認証（日本語対応）
 - **参加履歴** - 過去の参加イベント履歴
 
@@ -49,6 +51,9 @@
 - **AWS AppSync** - GraphQL API
 - **Amazon DynamoDB** - NoSQL データベース
 - **Amazon Cognito** - ユーザー認証・管理
+- **Amazon S3** - プロフィール画像ストレージ
+- **AWS Lambda** - サーバーレス関数
+- **Amazon SES** - メール通知サービス
 
 ## データベース設計
 
@@ -79,7 +84,7 @@
   department?: string   // 部門
   section?: string      // 課
   hobbyTags: string[]   // 趣味タグ配列
-  profileImageUrl?: string
+  profileImageUrl?: string // S3画像キー（動的URL生成）
 }
 ```
 
@@ -101,6 +106,16 @@
 	name: string; // タグ名
 	category: string; // カテゴリ
 	isActive: boolean; // 有効フラグ
+}
+```
+
+#### Counter（ID生成カウンター）
+
+```typescript
+{
+	id: string;
+	type: string; // カウンタータイプ
+	currentValue: number; // 現在値
 }
 ```
 
@@ -196,14 +211,19 @@ addNewTags();
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   フロントエンド   │    │   バックエンド    │    │  データベース    │
+│   フロントエンド   │    │   バックエンド    │    │   ストレージ     │
 │                 │    │                 │    │                 │
 │ Vue.js 3        │◄──►│ AWS AppSync     │◄──►│ Amazon DynamoDB │
-│ TypeScript      │    │ GraphQL API     │    │                 │
-│ Amplify UI      │    │                 │    │ ・Event         │
-│                 │    │ Amazon Cognito  │    │ ・UserProfile   │
-│                 │    │ (認証)          │    │ ・EventParticipant│
-│                 │    │                 │    │ ・TagMaster     │
+│ TypeScript      │    │ GraphQL API     │    │ ・Event         │
+│ Amplify UI      │    │                 │    │ ・UserProfile   │
+│                 │    │ Amazon Cognito  │    │ ・EventParticipant│
+│                 │    │ (認証)          │    │ ・TagMaster     │
+│                 │    │                 │    │ ・Counter       │
+│                 │    │ AWS Lambda      │    │                 │
+│                 │    │ (メール通知)     │    │ Amazon S3       │
+│                 │    │                 │    │ ・プロフィール画像│
+│                 │    │ Amazon SES      │    │                 │
+│                 │    │ (メール送信)     │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -232,6 +252,7 @@ addNewTags();
 - プロフィール編集
 - 趣味タグ選択
 - 部門・課情報管理
+- プロフィール画像アップロード（S3連携）
 
 ## セキュリティ
 
@@ -239,6 +260,8 @@ addNewTags();
 - **認可**: IAM ロールベースのアクセス制御
 - **API**: API Key + Cognito User Pools による二重認証
 - **データ**: DynamoDB 暗号化ストレージ
+- **画像**: S3 Pre-signed URL による安全なアクセス制御
+- **メール**: SES による検証済みドメインからの送信
 
 ## ライセンス
 
