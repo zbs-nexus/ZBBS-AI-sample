@@ -17,16 +17,20 @@ export class NotificationService {
         // ビルド時に静的に解決される方法を試す
         const outputs = require('../../amplify_outputs.json');
         functionUrl = outputs?.custom?.functionUrl;
-      } catch {
+      } catch (error) {
+        console.error('amplify_outputs.json読み込みエラー:', error);
         // フォールバック：ログ出力のみ
         console.log('メール通知ログ出力:', notification);
         return true;
       }
       
       if (!functionUrl) {
+        console.error('functionUrlが取得できませんでした');
         console.log('メール通知ログ出力:', notification);
-        return true;
+        return false;
       }
+      
+      console.log('メール通知送信開始:', functionUrl);
 
       const response = await fetch(functionUrl, {
         method: 'POST',
