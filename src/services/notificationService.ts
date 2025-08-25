@@ -10,8 +10,18 @@ export interface EmailNotification {
 export class NotificationService {
   static async sendApplicationNotification(notification: EmailNotification): Promise<boolean> {
     try {
-      const outputs = await import('../../amplify_outputs.json');
-      const functionUrl = (outputs as any).custom?.functionUrl;
+      // 環境変数やグローバル設定から取得（動的インポートを避ける）
+      let functionUrl: string | undefined;
+      
+      try {
+        // ビルド時に静的に解決される方法を試す
+        const outputs = require('../../amplify_outputs.json');
+        functionUrl = outputs?.custom?.functionUrl;
+      } catch {
+        // フォールバック：ログ出力のみ
+        console.log('メール通知ログ出力:', notification);
+        return true;
+      }
       
       if (!functionUrl) {
         console.log('メール通知ログ出力:', notification);

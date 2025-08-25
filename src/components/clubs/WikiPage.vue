@@ -245,7 +245,7 @@ onMounted(() => {
           </div>
           
           <div style="padding-top: 1rem; border-top: 1px solid #eee; color: #666; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
-            <span>最終更新: {{ new Date(wikiPage?.updatedAt || '').toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}</span>
+            <span>最終更新: {{ wikiPage?.updatedAt ? new Date(wikiPage.updatedAt).toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '未設定' }}</span>
             <div style="display: flex; gap: 0.5rem;">
               <BaseButton v-if="isClubRepresentative()" variant="info" size="small" @click="showApplicationsList">
                 申請者一覧

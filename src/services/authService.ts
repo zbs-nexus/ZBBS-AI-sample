@@ -7,10 +7,12 @@ export interface UserProfile {
   id?: string;
   userId: string;
   name: string;
-  department?: string;
-  section?: string;
-  hobbyTags?: string[];
-  profileImageUrl?: string;
+  department?: string | null;
+  section?: string | null;
+  hobbyTags?: (string | null)[] | null;
+  profileImageUrl?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export class AuthService {
@@ -29,7 +31,15 @@ export class AuthService {
   static async updateUserProfile(profile: UserProfile): Promise<boolean> {
     try {
       if (profile.id) {
-        await client.models.UserProfile.update(profile);
+        await client.models.UserProfile.update({
+          id: profile.id,
+          userId: profile.userId,
+          name: profile.name,
+          department: profile.department,
+          section: profile.section,
+          hobbyTags: profile.hobbyTags,
+          profileImageUrl: profile.profileImageUrl
+        });
       } else {
         await client.models.UserProfile.create(profile);
       }

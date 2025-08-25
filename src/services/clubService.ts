@@ -7,19 +7,23 @@ const client = generateClient<Schema>();
 export interface Club {
   id?: string;
   name: string;
-  description?: string;
-  category?: string;
-  representativeEmail?: string;
-  isActive?: boolean;
+  description?: string | null;
+  category?: string | null;
+  representativeEmail?: string | null;
+  isActive?: boolean | null;
   createdBy: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface WikiPage {
   id?: string;
   clubId: string;
   title: string;
-  content?: string;
+  content?: string | null;
   lastEditedBy: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ClubApplication {
@@ -62,12 +66,21 @@ export class ClubService {
   static async saveWikiPage(wikiData: WikiPage): Promise<boolean> {
     try {
       if (wikiData.id) {
-        await client.models.WikiPage.update(wikiData);
+        await client.models.WikiPage.update({
+          id: wikiData.id,
+          clubId: wikiData.clubId,
+          title: wikiData.title,
+          content: wikiData.content,
+          lastEditedBy: wikiData.lastEditedBy
+        });
       } else {
         const customId = await generateWikiId();
         await client.models.WikiPage.create({
-          ...wikiData,
-          id: customId
+          id: customId,
+          clubId: wikiData.clubId,
+          title: wikiData.title,
+          content: wikiData.content,
+          lastEditedBy: wikiData.lastEditedBy
         });
       }
       return true;
