@@ -111,7 +111,7 @@ async function createClub() {
   
   try {
     const { generateClient } = await import('aws-amplify/data');
-    const { generateClubId } = await import('../utils/idGenerator');
+    const { generateClubId } = await import('../../utils/idGenerator');
     const client = generateClient();
     
     const customId = await generateClubId();
