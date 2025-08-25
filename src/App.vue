@@ -2,10 +2,10 @@
 import { Authenticator } from "@aws-amplify/ui-vue";
 import "@aws-amplify/ui-vue/styles.css";
 import { ref, onMounted } from 'vue';
-import EventTimeline from './components/EventTimeline.vue';
-import EventDetail from './components/EventDetail.vue';
-import UserProfile from './components/UserProfile.vue';
-import ClubList from './components/ClubList.vue';
+import EventTimeline from './components/events/EventTimeline.vue';
+import EventDetail from './components/events/EventDetail.vue';
+import UserProfile from './components/auth/UserProfile.vue';
+import ClubList from './components/clubs/ClubList.vue';
 import WikiPage from './components/clubs/WikiPage.vue';
 import ClubApplications from './components/clubs/ClubApplications.vue';
 import ClubParticipants from './components/ClubParticipants.vue';
