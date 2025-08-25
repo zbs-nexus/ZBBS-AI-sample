@@ -247,6 +247,9 @@ onMounted(() => {
       <div style="margin-bottom: 0.5rem; display: flex; gap: 0.5rem; align-items: center;">
         <BaseInput v-model="searchTag" placeholder="タグ検索" 
                    style="flex: 1; max-width: 200px;" />
+        
+        <div style="flex: 1;"></div>
+        
         <BaseButton variant="warning" @click="showCreateModal = true">
           イベント新規作成
         </BaseButton>
