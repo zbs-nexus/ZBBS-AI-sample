@@ -23,13 +23,15 @@ const jaTranslations = {
   'Create Account': 'アカウント作成',
   'Forgot your password?': 'パスワードをお忘れですか？',
   'Reset password': 'パスワードリセット',
+  'Reset Password': 'パスワードリセット',
   'Send code': 'コード送信',
   'Code': '確認コード',
   'Confirm': '確認',
   'Back to Sign In': 'サインインに戻る',
   'Have an account?': 'アカウントをお持ちですか？',
   'No account?': 'アカウントをお持ちでないですか？',
-  'Sign Out': 'サインアウト'
+  'Sign Out': 'サインアウト',
+  'Enter your email': 'メールアドレスを入力してください'
 };
 
 I18n.putVocabularies({
