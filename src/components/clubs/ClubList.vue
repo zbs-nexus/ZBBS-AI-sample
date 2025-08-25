@@ -41,13 +41,13 @@ async function loadClubs() {
   const { generateClient } = await import('aws-amplify/data');
   const client = generateClient();
   
-  client.models.Club.observeQuery({
+  (client.models as any).Club.observeQuery({
     filter: { isActive: { eq: true } }
   }).subscribe({
-    next: ({ items }) => {
-      clubs.value = items.sort((a, b) => a.name.localeCompare(b.name));
+    next: ({ items }: { items: any[] }) => {
+      clubs.value = items.sort((a: any, b: any) => a.name.localeCompare(b.name));
     },
-    error: (error) => {
+    error: (error: any) => {
       console.error('部活動データ取得エラー:', error);
     }
   });
@@ -115,12 +115,12 @@ async function createClub() {
     const client = generateClient();
     
     const customId = await generateClubId();
-    await client.models.Club.create({
-      id: customId,
+    await (client.models as any).Club.create({
+      id: customId!,
       name: newClub.value.name,
       category: newClub.value.tags.join(', '),
       representativeEmail: newClub.value.representativeEmail,
-      createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
+      createdBy: (props.user.username || props.user.userId || props.user.sub || 'anonymous') as string
     });
     
     showCreateModal.value = false;
@@ -162,7 +162,7 @@ async function updateClub() {
     const { generateClient } = await import('aws-amplify/data');
     const client = generateClient();
     
-    await client.models.Club.update({
+    await (client.models as any).Club.update({
       id: editingClubId.value!,
       name: editClub.value.name,
       category: editClub.value.tags.join(', '),
@@ -210,7 +210,7 @@ async function deleteClub(club: any, clickEvent: Event) {
       const { generateClient } = await import('aws-amplify/data');
       const client = generateClient();
       
-      await client.models.Club.delete({ id: club.id });
+      await (client.models as any).Club.delete({ id: club.id });
       await loadClubs();
     } catch (error) {
       console.error('部活動削除エラー:', error);

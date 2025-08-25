@@ -14,7 +14,7 @@
 import { computed, ref } from 'vue';
 
 interface Props {
-  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'info';
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'info' | 'warning';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
 }
@@ -76,6 +76,11 @@ const buttonStyle = computed(() => {
       background: '#17a2b8',
       color: 'white',
       borderColor: '#17a2b8'
+    },
+    warning: {
+      background: '#ffc107',
+      color: '#212529',
+      borderColor: '#ffc107'
     }
   };
 

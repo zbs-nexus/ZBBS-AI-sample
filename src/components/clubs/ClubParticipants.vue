@@ -29,7 +29,7 @@ async function loadParticipants() {
     const { generateClient } = await import('aws-amplify/data');
     const client = generateClient();
     
-    const { data: applications } = await client.models.ClubApplication.list({
+    const { data: applications } = await (client.models as any).ClubApplication.list({
       filter: { 
         clubId: { eq: props.clubId },
         status: { eq: 'pending' }
@@ -62,7 +62,7 @@ async function approveParticipant(applicationId: string) {
     const { generateClient } = await import('aws-amplify/data');
     const client = generateClient();
     
-    await client.models.ClubApplication.update({
+    await (client.models as any).ClubApplication.update({
       id: applicationId,
       status: 'approved'
     });

@@ -98,7 +98,7 @@ async function createEvent() {
     tags: newEvent.value.tags,
     targetAudience: newEvent.value.targetAudience,
     recruitmentDeadline: newEvent.value.recruitmentDeadline ? new Date(newEvent.value.recruitmentDeadline).toISOString() : null,
-    createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
+    createdBy: (props.user.username || props.user.userId || props.user.sub || 'anonymous') as string
   };
   
   const success = await EventService.createEvent(eventData);
@@ -111,7 +111,7 @@ async function createEvent() {
   }
 }
 
-async function deleteEvent(event: Event, clickEvent: Event) {
+async function deleteEvent(event: Event, clickEvent: MouseEvent) {
   clickEvent.stopPropagation();
   
   const currentUser = props.user.username || props.user.userId || props.user.sub || 'anonymous';
@@ -135,7 +135,7 @@ function isEventOwner(event: Event) {
   return event.createdBy === currentUser;
 }
 
-function startEditEvent(event: Event, clickEvent: Event) {
+function startEditEvent(event: Event, clickEvent: MouseEvent) {
   clickEvent.stopPropagation();
   editingEventId.value = event.id!;
   editEvent.value = {
@@ -145,7 +145,7 @@ function startEditEvent(event: Event, clickEvent: Event) {
     endDate: event.endDate ? new Date(event.endDate).toISOString().slice(0, 16) : '',
     location: event.location || '',
     maxParticipants: event.maxParticipants || 10,
-    tags: (event.tags || []).filter((tag): tag is string => tag !== null),
+    tags: (event.tags || []).filter((tag): tag is string => tag !== null && tag !== undefined),
     targetAudience: event.targetAudience || '',
     recruitmentDeadline: event.recruitmentDeadline ? new Date(event.recruitmentDeadline).toISOString().slice(0, 16) : ''
   };
@@ -177,7 +177,7 @@ async function updateEvent() {
     tags: editEvent.value.tags,
     targetAudience: editEvent.value.targetAudience,
     recruitmentDeadline: editEvent.value.recruitmentDeadline ? new Date(editEvent.value.recruitmentDeadline).toISOString() : null,
-    createdBy: props.user.username || props.user.userId || props.user.sub || 'anonymous'
+    createdBy: (props.user.username || props.user.userId || props.user.sub || 'anonymous') as string
   };
   
   const success = await EventService.updateEvent(eventData);
@@ -284,7 +284,7 @@ onMounted(() => {
             <BaseInput v-model="editEvent.date" label="開催日時" type="datetime-local" required />
             <BaseInput v-model="editEvent.endDate" label="終了日時" type="datetime-local" required />
             <BaseInput v-model="editEvent.location" label="開催場所" required />
-            <BaseInput v-model="editEvent.maxParticipants" label="最大参加者数" type="number" />
+            <BaseInput :model-value="editEvent.maxParticipants.toString()" @update:model-value="editEvent.maxParticipants = parseInt($event) || 10" label="最大参加者数" type="number" />
             <BaseInput v-model="editEvent.recruitmentDeadline" label="募集期限" type="datetime-local" required />
             
             <div class="form-group">
@@ -341,7 +341,7 @@ onMounted(() => {
         <BaseInput v-model="newEvent.date" label="開催日時" type="datetime-local" required />
         <BaseInput v-model="newEvent.endDate" label="終了日時" type="datetime-local" required />
         <BaseInput v-model="newEvent.location" label="開催場所" required />
-        <BaseInput v-model="newEvent.maxParticipants" label="最大参加者数" type="number" />
+        <BaseInput :model-value="newEvent.maxParticipants.toString()" @update:model-value="newEvent.maxParticipants = parseInt($event) || 10" label="最大参加者数" type="number" />
         <BaseInput v-model="newEvent.recruitmentDeadline" label="募集期限" type="datetime-local" required />
         
         <div class="form-group">

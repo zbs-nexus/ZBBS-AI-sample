@@ -51,7 +51,7 @@ function isProfileComplete(profile: UserProfile | null): boolean {
            profile.department && 
            profile.section && 
            profile.hobbyTags && 
-           profile.hobbyTags.length > 0);
+           profile.hobbyTags.filter(tag => tag !== null && tag !== undefined).length > 0);
 }
 
 async function joinEvent() {

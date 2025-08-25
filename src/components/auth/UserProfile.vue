@@ -42,7 +42,7 @@ async function loadProfile() {
       name: profile.value.name || '',
       department: profile.value.department || '',
       section: profile.value.section || '',
-      hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null),
+      hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null && tag !== undefined),
       profileImageUrl: profile.value.profileImageUrl || '',
       profileImageFile: null
     };
@@ -160,7 +160,7 @@ function startEditing() {
       name: profile.value.name || '',
       department: profile.value.department || '',
       section: profile.value.section || '',
-      hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null),
+      hobbyTags: (profile.value.hobbyTags || []).filter((tag): tag is string => tag !== null && tag !== undefined),
       profileImageUrl: profile.value.profileImageUrl || '',
       profileImageFile: null
     };

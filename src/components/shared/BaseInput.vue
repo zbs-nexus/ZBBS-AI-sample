@@ -45,7 +45,7 @@ import { computed, ref } from 'vue';
 interface Props {
   modelValue: string;
   label?: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'textarea';
+  type?: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'datetime-local';
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
