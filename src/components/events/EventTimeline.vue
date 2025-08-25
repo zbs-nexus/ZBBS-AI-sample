@@ -70,8 +70,14 @@ async function createEvent() {
       !UIService.validateRequired(newEvent.value.date) || 
       !UIService.validateRequired(newEvent.value.endDate) || 
       !UIService.validateRequired(newEvent.value.location) || 
+      !UIService.validateRequired(newEvent.value.representativeEmail) || 
       !UIService.validateRequired(newEvent.value.recruitmentDeadline)) {
-    UIService.showAlert('イベント名、開催日時、終了日時、開催場所、募集期限は必須です');
+    UIService.showAlert('イベント名、開催日時、終了日時、開催場所、代表者メールアドレス、募集期限は必須です');
+    return;
+  }
+  
+  if (!UIService.validateEmail(newEvent.value.representativeEmail)) {
+    UIService.showAlert('有効なメールアドレスを入力してください');
     return;
   }
   
@@ -348,7 +354,7 @@ onMounted(() => {
         <BaseInput v-model="newEvent.endDate" label="終了日時" type="datetime-local" required />
         <BaseInput v-model="newEvent.location" label="開催場所" required />
         <BaseInput :model-value="newEvent.maxParticipants.toString()" @update:model-value="newEvent.maxParticipants = parseInt($event) || 10" label="最大参加者数" type="number" />
-        <BaseInput v-model="newEvent.representativeEmail" label="代表者メールアドレス" type="email" />
+        <BaseInput v-model="newEvent.representativeEmail" label="代表者メールアドレス" type="email" required />
         <BaseInput v-model="newEvent.recruitmentDeadline" label="募集期限" type="datetime-local" required />
         
         <div class="form-group">
