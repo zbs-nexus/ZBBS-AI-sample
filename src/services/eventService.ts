@@ -15,6 +15,7 @@ export interface Event {
   tags?: (string | null)[] | null;
   targetAudience?: string | null;
   recruitmentDeadline?: string | null;
+  representativeEmail?: string | null;
   createdBy: string;
   createdAt?: string;
   updatedAt?: string;
@@ -83,6 +84,7 @@ export class EventService {
         tags: eventData.tags,
         targetAudience: eventData.targetAudience,
         recruitmentDeadline: eventData.recruitmentDeadline,
+        representativeEmail: eventData.representativeEmail,
         createdBy: eventData.createdBy
       });
       return true;
@@ -112,6 +114,30 @@ export class EventService {
     } catch (error) {
       console.error('イベント参加エラー:', error);
       return false;
+    }
+  }
+
+  static async sendEventParticipationNotification(eventId: string, userId: string, isJoining: boolean): Promise<void> {
+    try {
+      const event = await this.getEvent(eventId);
+      if (!event?.representativeEmail) return;
+
+      const { AuthService } = await import('./authService');
+      const userProfile = await AuthService.getUserProfile(userId);
+      if (!userProfile) return;
+
+      const { NotificationService } = await import('./notificationService');
+      await NotificationService.sendEventNotification({
+        representativeEmail: event.representativeEmail,
+        participantName: userProfile.name,
+        participantDepartment: userProfile.department || '',
+        participantSection: userProfile.section || '',
+        eventTitle: event.title,
+        eventDate: event.date,
+        isJoining
+      });
+    } catch (error) {
+      console.error('イベント通知エラー:', error);
     }
   }
 

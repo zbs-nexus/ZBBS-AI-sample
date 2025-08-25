@@ -64,6 +64,8 @@ async function joinEvent() {
   
   const success = await EventService.joinEvent(props.eventId, props.user.userId);
   if (success) {
+    // メール通知送信
+    await EventService.sendEventParticipationNotification(props.eventId, props.user.userId, true);
     await loadEvent();
   } else {
     UIService.showAlert('イベント参加に失敗しました');
@@ -75,6 +77,8 @@ async function leaveEvent() {
   
   const success = await EventService.leaveEvent(props.eventId, props.user.userId);
   if (success) {
+    // キャンセル通知送信
+    await EventService.sendEventParticipationNotification(props.eventId, props.user.userId, false);
     await loadEvent();
   } else {
     UIService.showAlert('イベント退会に失敗しました');

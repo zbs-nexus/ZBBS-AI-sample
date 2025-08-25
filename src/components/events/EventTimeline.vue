@@ -34,7 +34,8 @@ const newEvent = ref({
   maxParticipants: 10,
   tags: [] as string[],
   targetAudience: '',
-  recruitmentDeadline: ''
+  recruitmentDeadline: '',
+  representativeEmail: ''
 });
 
 const editEvent = ref({
@@ -46,7 +47,8 @@ const editEvent = ref({
   maxParticipants: 10,
   tags: [] as string[],
   targetAudience: '',
-  recruitmentDeadline: ''
+  recruitmentDeadline: '',
+  representativeEmail: ''
 });
 
 async function loadEvents() {
@@ -98,6 +100,7 @@ async function createEvent() {
     tags: newEvent.value.tags,
     targetAudience: newEvent.value.targetAudience,
     recruitmentDeadline: newEvent.value.recruitmentDeadline ? new Date(newEvent.value.recruitmentDeadline).toISOString() : null,
+    representativeEmail: newEvent.value.representativeEmail,
     createdBy: (props.user.username || props.user.userId || props.user.sub || 'anonymous') as string
   };
   
@@ -211,7 +214,7 @@ function cancelEdit() {
 function resetNewEvent() {
   newEvent.value = { 
     title: '', description: '', date: '', endDate: '', location: '', 
-    maxParticipants: 10, tags: [], targetAudience: '', recruitmentDeadline: '' 
+    maxParticipants: 10, tags: [], targetAudience: '', recruitmentDeadline: '', representativeEmail: '' 
   };
 }
 
@@ -345,6 +348,7 @@ onMounted(() => {
         <BaseInput v-model="newEvent.endDate" label="終了日時" type="datetime-local" required />
         <BaseInput v-model="newEvent.location" label="開催場所" required />
         <BaseInput :model-value="newEvent.maxParticipants.toString()" @update:model-value="newEvent.maxParticipants = parseInt($event) || 10" label="最大参加者数" type="number" />
+        <BaseInput v-model="newEvent.representativeEmail" label="代表者メールアドレス" type="email" />
         <BaseInput v-model="newEvent.recruitmentDeadline" label="募集期限" type="datetime-local" required />
         
         <div class="form-group">

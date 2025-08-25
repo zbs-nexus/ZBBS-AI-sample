@@ -12,6 +12,7 @@ const schema = a.schema({
       tags: a.string().array(),
       targetAudience: a.string(),
       recruitmentDeadline: a.datetime(),
+      representativeEmail: a.string(),
       createdBy: a.string().required(),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
