@@ -348,52 +348,54 @@ onMounted(() => {
       </button>
     </div>
 
-    <div v-if="!isEditing" class="card" style="flex: 1; overflow-y: auto; margin-bottom: 1rem; padding-bottom: 12rem; max-height: calc(100vh - 120px);">
-      <div v-if="hasContent">
+    <div v-if="!isEditing" class="card" style="border-radius: 12px; overflow: hidden; height: calc(100vh - 300px); display: flex; flex-direction: column;">
+      <div v-if="hasContent" style="overflow-y: auto; height: 100%; padding-bottom: 1rem;">
         <h1 style="margin: 0 0 1rem 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">
           {{ wikiPage?.title }}
         </h1>
         
-        <div style="line-height: 1.6; white-space: pre-wrap; color: #444;">
+        <div style="line-height: 1.6; white-space: pre-wrap; color: #444; margin-bottom: 1rem;">
           {{ wikiPage?.content }}
         </div>
         
-        <div v-if="approvedParticipants.length > 0" style="margin-top: 2rem; padding: 0.75rem; background: #f8f9fa; border-radius: 8px;">
-          <h3 style="margin: 0 0 0.75rem 0; color: #333; font-size: 0.9rem;">参加者一覧 ({{ approvedParticipants.length }}名)</h3>
-          <div style="display: flex; flex-direction: column; gap: 0.3rem;">
-            <div v-for="participant in approvedParticipants" :key="participant.name" 
-                 style="display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.6rem; background: white; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 0.8rem;">
-              <span style="font-weight: bold; color: #333;">{{ participant.name }}</span>
-              <span style="color: #666;">{{ participant.department }} / {{ participant.section }}</span>
-              <div v-if="participant.hobbyTags.length > 0" style="display: flex; flex-wrap: wrap; gap: 0.2rem; margin-left: auto;">
-                <span v-for="tag in participant.hobbyTags" :key="tag"
-                      style="background: #e3f2fd; color: #1976d2; padding: 0.1rem 0.3rem; border-radius: 8px; font-size: 0.7rem; white-space: nowrap;">
-                  {{ tag }}
-                </span>
+        <div>
+          <div v-if="approvedParticipants.length > 0" style="margin-bottom: 1rem; padding: 0.75rem; background: #f8f9fa; border-radius: 8px;">
+            <h3 style="margin: 0 0 0.75rem 0; color: #333; font-size: 0.9rem;">参加者一覧 ({{ approvedParticipants.length }}名)</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+              <div v-for="participant in approvedParticipants" :key="participant.name" 
+                   style="display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.6rem; background: white; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 0.8rem;">
+                <span style="font-weight: bold; color: #333;">{{ participant.name }}</span>
+                <span style="color: #666;">{{ participant.department }} / {{ participant.section }}</span>
+                <div v-if="participant.hobbyTags.length > 0" style="display: flex; flex-wrap: wrap; gap: 0.2rem; margin-left: auto;">
+                  <span v-for="tag in participant.hobbyTags" :key="tag"
+                        style="background: #e3f2fd; color: #1976d2; padding: 0.1rem 0.3rem; border-radius: 8px; font-size: 0.7rem; white-space: nowrap;">
+                    {{ tag }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #666; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
-          <span>最終更新: {{ wikiPage?.lastEditedBy }} ({{ new Date(wikiPage?.updatedAt || '').toLocaleString() }})</span>
-          <div style="display: flex; gap: 0.5rem;">
-            <button v-if="isClubRepresentative()" @click="showApplicationsList"
-                    style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              申請者一覧
-            </button>
-            <button v-if="!hasApplied && !isClubRepresentative()" @click="applyToClub"
-                    style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              参加申請
-            </button>
-            <button v-if="hasApplied && applicationStatus === 'pending' && !isClubRepresentative()" @click="cancelApplication"
-                    style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              申請取り消し
-            </button>
-            <span v-if="hasApplied && applicationStatus === 'approved' && !isClubRepresentative()" 
-                  style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #6c757d; color: white; border-radius: 4px; cursor: not-allowed;">
-              参加済み
-            </span>
+          
+          <div style="padding-top: 1rem; border-top: 1px solid #eee; color: #666; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>最終更新: {{ new Date(wikiPage?.updatedAt || '').toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}</span>
+            <div style="display: flex; gap: 0.5rem;">
+              <button v-if="isClubRepresentative()" @click="showApplicationsList"
+                      style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                申請者一覧
+              </button>
+              <button v-if="!hasApplied && !isClubRepresentative()" @click="applyToClub"
+                      style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                参加申請
+              </button>
+              <button v-if="hasApplied && applicationStatus === 'pending' && !isClubRepresentative()" @click="cancelApplication"
+                      style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                申請取り消し
+              </button>
+              <span v-if="hasApplied && applicationStatus === 'approved' && !isClubRepresentative()" 
+                    style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: #6c757d; color: white; border-radius: 4px; cursor: not-allowed;">
+                参加済み
+              </span>
+            </div>
           </div>
         </div>
       </div>
