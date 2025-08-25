@@ -3,7 +3,7 @@
     :class="buttonClass"
     :style="buttonStyle"
     :disabled="disabled"
-    @click="$emit('click')"
+    @click="$emit('click', $event)"
     @mouseover="onMouseOver"
     @mouseout="onMouseOut">
     <slot />
@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 defineEmits<{
-  click: [];
+  click: [event: MouseEvent];
 }>();
 
 const isHovered = ref(false);
