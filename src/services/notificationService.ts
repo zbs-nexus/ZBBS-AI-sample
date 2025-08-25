@@ -14,9 +14,9 @@ export class NotificationService {
       let functionUrl: string | undefined;
       
       try {
-        // ビルド時に静的に解決される方法を試す
-        const outputs = require('../../amplify_outputs.json');
-        functionUrl = outputs?.custom?.functionUrl;
+        // ES6 importを使用してamplify_outputs.jsonを読み込み
+        const outputs = await import('../../amplify_outputs.json');
+        functionUrl = outputs.default?.custom?.functionUrl || outputs.custom?.functionUrl;
       } catch (error) {
         console.error('amplify_outputs.json読み込みエラー:', error);
         // フォールバック：ログ出力のみ
