@@ -8,7 +8,7 @@ import UserProfile from './components/auth/UserProfile.vue';
 import ClubList from './components/clubs/ClubList.vue';
 import WikiPage from './components/clubs/WikiPage.vue';
 import ClubApplications from './components/clubs/ClubApplications.vue';
-import ClubParticipants from './components/ClubParticipants.vue';
+import ClubParticipants from './components/clubs/ClubParticipants.vue';
 import { seedTagMaster, addNewTags } from './utils/seedData';
 import { I18n } from 'aws-amplify/utils';
 
