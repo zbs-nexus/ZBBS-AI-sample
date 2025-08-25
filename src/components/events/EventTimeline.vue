@@ -111,7 +111,7 @@ async function createEvent() {
   }
 }
 
-async function deleteEvent(event: Event, clickEvent: MouseEvent) {
+async function deleteEvent(event: Event, clickEvent: any) {
   clickEvent.stopPropagation();
   
   const currentUser = props.user.username || props.user.userId || props.user.sub || 'anonymous';
@@ -135,7 +135,7 @@ function isEventOwner(event: Event) {
   return event.createdBy === currentUser;
 }
 
-function startEditEvent(event: Event, clickEvent: MouseEvent) {
+function startEditEvent(event: Event, clickEvent: any) {
   clickEvent.stopPropagation();
   editingEventId.value = event.id!;
   editEvent.value = {

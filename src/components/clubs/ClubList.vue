@@ -141,7 +141,7 @@ function isClubOwner(club: any) {
   return club.createdBy === currentUser;
 }
 
-function startEditClub(club: any, clickEvent: Event) {
+function startEditClub(club: any, clickEvent: any) {
   clickEvent.stopPropagation();
   editingClubId.value = club.id;
   selectedEditCategory.value = '';
@@ -192,12 +192,12 @@ function resetEditClub() {
   editClub.value = { name: '', tags: [], representativeEmail: '' };
 }
 
-function showParticipantsList(club: any, clickEvent: Event) {
+function showParticipantsList(club: any, clickEvent: any) {
   clickEvent.stopPropagation();
   emit('showParticipants', club.id, club.name);
 }
 
-async function deleteClub(club: any, clickEvent: Event) {
+async function deleteClub(club: any, clickEvent: any) {
   clickEvent.stopPropagation();
   
   if (!isClubOwner(club)) {

@@ -78,9 +78,9 @@ const buttonStyle = computed(() => {
       borderColor: '#17a2b8'
     },
     warning: {
-      background: '#ffc107',
-      color: '#212529',
-      borderColor: '#ffc107'
+      background: '#ff8c00',
+      color: 'white',
+      borderColor: '#ff8c00'
     }
   };
 
