@@ -13,6 +13,7 @@ const schema = a.schema({
       targetAudience: a.string(),
       recruitmentDeadline: a.datetime(),
       representativeEmail: a.string(),
+      organizerClub: a.string(),
       createdBy: a.string().required(),
     })
     .authorization((allow) => [allow.publicApiKey(), allow.authenticated()]),
