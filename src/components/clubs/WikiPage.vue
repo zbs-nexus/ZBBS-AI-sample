@@ -146,8 +146,13 @@ async function loadApprovedParticipants() {
 }
 
 async function loadActivityRecords() {
-  if (!club.value?.name) return;
+  if (!club.value?.name) {
+    console.log('部活名が取得できていません:', club.value);
+    return;
+  }
+  console.log('活動記録を検索中:', club.value.name);
   activityRecords.value = await ClubService.getClubActivityRecords(club.value.name);
+  console.log('取得した活動記録:', activityRecords.value);
 }
 
 async function applyToClub() {
