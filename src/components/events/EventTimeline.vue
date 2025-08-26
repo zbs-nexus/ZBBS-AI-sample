@@ -115,6 +115,7 @@ async function createEvent() {
     targetAudience: newEvent.value.targetAudience,
     recruitmentDeadline: newEvent.value.recruitmentDeadline ? new Date(newEvent.value.recruitmentDeadline).toISOString() : null,
     representativeEmail: newEvent.value.representativeEmail,
+    organizerClub: newEvent.value.organizerClub,
     createdBy: (props.user.username || props.user.userId || props.user.sub || 'anonymous') as string
   };
   
@@ -197,6 +198,8 @@ async function updateEvent() {
     tags: editEvent.value.tags,
     targetAudience: editEvent.value.targetAudience,
     recruitmentDeadline: editEvent.value.recruitmentDeadline ? new Date(editEvent.value.recruitmentDeadline).toISOString() : null,
+    representativeEmail: editEvent.value.representativeEmail,
+    organizerClub: editEvent.value.organizerClub,
     createdBy: (props.user.username || props.user.userId || props.user.sub || 'anonymous') as string
   };
   
@@ -231,14 +234,14 @@ function cancelEdit() {
 function resetNewEvent() {
   newEvent.value = { 
     title: '', description: '', date: '', endDate: '', location: '', 
-    maxParticipants: 10, tags: [], targetAudience: '', recruitmentDeadline: '', representativeEmail: '' 
+    maxParticipants: 10, tags: [], targetAudience: '', recruitmentDeadline: '', representativeEmail: '', organizerClub: '' 
   };
 }
 
 function resetEditEvent() {
   editEvent.value = { 
     title: '', description: '', date: '', endDate: '', location: '', 
-    maxParticipants: 10, tags: [], targetAudience: '', recruitmentDeadline: '' 
+    maxParticipants: 10, tags: [], targetAudience: '', recruitmentDeadline: '', representativeEmail: '', organizerClub: '' 
   };
 }
 
