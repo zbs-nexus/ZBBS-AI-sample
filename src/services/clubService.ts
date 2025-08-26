@@ -190,7 +190,7 @@ export class ClubService {
       console.log('検索結果:', events);
       
       const filteredEvents = events
-        .filter(event => event.date && new Date(event.date) < new Date())
+        .filter(event => event.date)
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .map(event => ({
           date: event.date,
