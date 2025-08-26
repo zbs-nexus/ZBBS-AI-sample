@@ -41,6 +41,16 @@ export interface Participant {
 }
 
 export class ClubService {
+  static async getClubs(): Promise<Club[]> {
+    try {
+      const { data } = await client.models.Club.list();
+      return data.filter(club => club.isActive !== false);
+    } catch (error) {
+      console.error('部活一覧取得エラー:', error);
+      return [];
+    }
+  }
+
   static async getClub(clubId: string): Promise<Club | null> {
     try {
       const { data } = await client.models.Club.get({ id: clubId });
