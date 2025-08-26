@@ -35,7 +35,8 @@ const newEvent = ref({
   tags: [] as string[],
   targetAudience: '',
   recruitmentDeadline: '',
-  representativeEmail: ''
+  representativeEmail: '',
+  organizerClub: ''
 });
 
 const editEvent = ref({
@@ -48,7 +49,8 @@ const editEvent = ref({
   tags: [] as string[],
   targetAudience: '',
   recruitmentDeadline: '',
-  representativeEmail: ''
+  representativeEmail: '',
+  organizerClub: ''
 });
 
 async function loadEvents() {
@@ -76,8 +78,9 @@ async function createEvent() {
       !UIService.validateRequired(newEvent.value.endDate) || 
       !UIService.validateRequired(newEvent.value.location) || 
       !UIService.validateRequired(newEvent.value.representativeEmail) || 
-      !UIService.validateRequired(newEvent.value.recruitmentDeadline)) {
-    UIService.showAlert('イベント名、開催日時、終了日時、開催場所、代表者メールアドレス、募集期限は必須です');
+      !UIService.validateRequired(newEvent.value.recruitmentDeadline) ||
+      !UIService.validateRequired(newEvent.value.organizerClub)) {
+    UIService.showAlert('イベント名、開催日時、終了日時、開催場所、代表者メールアドレス、募集期限、主催団体は必須です');
     return;
   }
   
@@ -161,7 +164,9 @@ function startEditEvent(event: Event, clickEvent: any) {
     maxParticipants: event.maxParticipants || 10,
     tags: (event.tags || []).filter((tag): tag is string => tag !== null && tag !== undefined),
     targetAudience: event.targetAudience || '',
-    recruitmentDeadline: event.recruitmentDeadline ? new Date(event.recruitmentDeadline).toISOString().slice(0, 16) : ''
+    recruitmentDeadline: event.recruitmentDeadline ? new Date(event.recruitmentDeadline).toISOString().slice(0, 16) : '',
+    representativeEmail: event.representativeEmail || '',
+    organizerClub: event.organizerClub || ''
   };
 }
 
@@ -170,8 +175,9 @@ async function updateEvent() {
       !UIService.validateRequired(editEvent.value.date) || 
       !UIService.validateRequired(editEvent.value.endDate) || 
       !UIService.validateRequired(editEvent.value.location) || 
-      !UIService.validateRequired(editEvent.value.recruitmentDeadline)) {
-    UIService.showAlert('イベント名、開催日時、終了日時、開催場所、募集期限は必須です');
+      !UIService.validateRequired(editEvent.value.recruitmentDeadline) ||
+      !UIService.validateRequired(editEvent.value.organizerClub)) {
+    UIService.showAlert('イベント名、開催日時、終了日時、開催場所、募集期限、主催団体は必須です');
     return;
   }
   
@@ -304,6 +310,15 @@ onMounted(() => {
             <BaseInput v-model="editEvent.location" label="開催場所" required />
             
             <div class="form-group">
+              <label><strong>主催団体 <span style="color: red;">*</span></strong></label>
+              <select v-model="editEvent.organizerClub" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="">主催団体を選択してください</option>
+                <option value="その他">その他</option>
+                <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
               <label><strong>参加対象</strong></label>
               <select v-model="editEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
                 <option value="">参加対象を選択してください</option>
@@ -369,6 +384,15 @@ onMounted(() => {
         <BaseInput v-model="newEvent.date" label="開催日時" type="datetime-local" required />
         <BaseInput v-model="newEvent.endDate" label="終了日時" type="datetime-local" required />
         <BaseInput v-model="newEvent.location" label="開催場所" required />
+        
+        <div class="form-group">
+          <label><strong>主催団体 <span style="color: red;">*</span></strong></label>
+          <select v-model="newEvent.organizerClub" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
+            <option value="">主催団体を選択してください</option>
+            <option value="その他">その他</option>
+            <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
+          </select>
+        </div>
         
         <div class="form-group">
           <label><strong>参加対象</strong></label>

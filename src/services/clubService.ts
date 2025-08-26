@@ -180,4 +180,24 @@ export class ClubService {
       return [];
     }
   }
+
+  static async getClubActivityRecords(clubName: string): Promise<Array<{date: string, title: string, location?: string}>> {
+    try {
+      const { data: events } = await client.models.Event.list({
+        filter: { organizerClub: { eq: clubName } }
+      });
+      
+      return events
+        .filter(event => event.date && new Date(event.date) < new Date())
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .map(event => ({
+          date: event.date,
+          title: event.title,
+          location: event.location
+        }));
+    } catch (error) {
+      console.error('活動記録取得エラー:', error);
+      return [];
+    }
+  }
 }

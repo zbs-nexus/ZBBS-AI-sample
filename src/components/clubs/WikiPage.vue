@@ -27,6 +27,7 @@ const hasApplied = ref(false);
 const applicationStatus = ref<string>('');
 const userProfile = ref<UserProfile | null>(null);
 const approvedParticipants = ref<Participant[]>([]);
+const activityRecords = ref<Array<{date: string, title: string, location?: string}>>([]);
 
 const hasContent = computed(() => wikiPage.value && wikiPage.value.content);
 
@@ -141,6 +142,11 @@ async function loadApprovedParticipants() {
   approvedParticipants.value = await ClubService.getApprovedParticipants(props.clubId);
 }
 
+async function loadActivityRecords() {
+  if (!club.value?.name) return;
+  activityRecords.value = await ClubService.getClubActivityRecords(club.value.name);
+}
+
 async function applyToClub() {
   if (!userProfile.value || !userProfile.value.name || !userProfile.value.department || !userProfile.value.section) {
     alert('参加申請にはプロフィールの名前、部門、課/グループの設定が必要です');
@@ -219,6 +225,7 @@ onMounted(() => {
   loadUserProfile();
   checkApplicationStatus();
   loadApprovedParticipants();
+  loadActivityRecords();
 });
 </script>
 
@@ -244,6 +251,19 @@ onMounted(() => {
         
         <div style="line-height: 1.6; white-space: pre-wrap; color: #444; margin-bottom: 1rem;">
           {{ wikiPage?.content }}
+        </div>
+        
+        <div v-if="activityRecords.length > 0" style="margin-bottom: 1rem; padding: 0.75rem; background: #fff3cd; border-radius: 8px; border: 1px solid #ffeaa7;">
+          <h3 style="margin: 0 0 0.75rem 0; color: #333; font-size: 0.9rem;">活動記録</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+            <div v-for="record in activityRecords.slice(0, 5)" :key="record.date + record.title" 
+                 style="padding: 0.4rem 0.6rem; background: white; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 0.8rem;">
+              <span style="color: #666;">{{ new Date(record.date).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }) }}</span>
+              <span style="margin: 0 0.5rem; color: #333;">{{ record.title }}</span>
+              <span v-if="record.location" style="color: #666;">を{{ record.location }}で開催</span>
+              <span v-else style="color: #666;">に参加</span>
+            </div>
+          </div>
         </div>
         
         <div v-if="approvedParticipants.length > 0" style="margin-bottom: 1rem; padding: 0.75rem; background: #f8f9fa; border-radius: 8px;">

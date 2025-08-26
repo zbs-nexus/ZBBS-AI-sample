@@ -16,6 +16,7 @@ export interface Event {
   targetAudience?: string | null;
   recruitmentDeadline?: string | null;
   representativeEmail?: string | null;
+  organizerClub?: string | null;
   createdBy: string;
   createdAt?: string;
   updatedAt?: string;
@@ -85,6 +86,7 @@ export class EventService {
         targetAudience: eventData.targetAudience,
         recruitmentDeadline: eventData.recruitmentDeadline,
         representativeEmail: eventData.representativeEmail,
+        organizerClub: eventData.organizerClub,
         createdBy: eventData.createdBy
       });
       return true;
