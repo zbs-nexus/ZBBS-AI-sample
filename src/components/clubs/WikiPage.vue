@@ -54,6 +54,9 @@ function applyTemplate() {
 async function loadClub() {
   if (!props.clubId) return;
   club.value = await ClubService.getClub(props.clubId);
+  if (club.value?.name) {
+    await loadActivityRecords();
+  }
 }
 
 async function loadWikiPage() {
@@ -225,7 +228,6 @@ onMounted(() => {
   loadUserProfile();
   checkApplicationStatus();
   loadApprovedParticipants();
-  loadActivityRecords();
 });
 </script>
 
