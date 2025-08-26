@@ -308,7 +308,7 @@ onMounted(() => {
               <select v-model="editEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
                 <option value="">参加対象を選択してください</option>
                 <option value="だれでも歓迎">だれでも歓迎</option>
-                <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
+                <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}メンバー限定</option>
               </select>
             </div>
             
@@ -375,7 +375,7 @@ onMounted(() => {
           <select v-model="newEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
             <option value="">参加対象を選択してください</option>
             <option value="だれでも歓迎">だれでも歓迎</option>
-            <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
+            <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}参加者限定</option>
           </select>
         </div>
         

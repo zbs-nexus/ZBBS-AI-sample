@@ -290,7 +290,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-if="!editingClubId" class="clubs-list" style="display: flex; flex-direction: column; gap: 0.1rem; max-height: 70vh; overflow-y: auto; padding-bottom: 4rem;">
+    <div v-if="!editingClubId" class="clubs-list" style="display: flex; flex-direction: column; gap: 1rem; max-height: 70vh; overflow-y: auto; padding-bottom: 4rem;">
       <BaseCard v-for="club in clubs" :key="club.id" 
                 @click="showWikiPage(club.id)"
                 style="cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; padding: 0.75rem; position: relative;"
