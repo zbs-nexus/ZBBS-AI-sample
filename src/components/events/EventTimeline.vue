@@ -351,7 +351,7 @@ onMounted(() => {
           <h3 style="font-size: 1.3rem; font-weight: 700; margin: 0 0 0.3rem 0;">{{ event.title }}</h3>
           <p style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催日時:</strong> {{ UIService.formatDate(event.date) }}</p>
           <p v-if="event.location" style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>開催場所:</strong> {{ event.location }}</p>
-          <p v-if="event.targetAudience" style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>参加対象:</strong> {{ event.targetAudience }}</p>
+          <p v-if="event.targetAudience" style="margin: 0.2rem 0; font-size: 0.9rem;"><strong>参加対象:</strong> {{ event.targetAudience === 'だれでも歓迎' ? event.targetAudience : event.targetAudience + '参加者限定' }}</p>
           <div v-if="event.tags?.length" style="margin-top: 0.3rem;">
             <BaseTag v-for="(tag, index) in event.tags" :key="index" 
                      :text="tag" variant="info" size="small"
