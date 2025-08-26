@@ -14,6 +14,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   back: [];
   showApplications: [clubId: string];
+  showEventDetail: [eventId: string];
 }>();
 
 const club = ref<Club | null>(null);
@@ -27,7 +28,7 @@ const hasApplied = ref(false);
 const applicationStatus = ref<string>('');
 const userProfile = ref<UserProfile | null>(null);
 const approvedParticipants = ref<Participant[]>([]);
-const activityRecords = ref<Array<{date: string, title: string, location?: string}>>([]);
+const activityRecords = ref<Array<{id: string, date: string, title: string, location?: string}>>([]);
 
 const hasContent = computed(() => wikiPage.value && wikiPage.value.content);
 
@@ -264,7 +265,10 @@ onMounted(() => {
           <h3 style="margin: 0 0 0.75rem 0; color: #333; font-size: 0.9rem;">活動記録</h3>
           <div style="display: flex; flex-direction: column; gap: 0.3rem;">
             <div v-for="record in activityRecords.slice(0, 5)" :key="record.date + record.title" 
-                 style="padding: 0.4rem 0.6rem; background: white; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 0.8rem;">
+                 style="padding: 0.4rem 0.6rem; background: white; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 0.8rem; cursor: pointer; transition: background-color 0.2s;"
+                 @click="emit('showEventDetail', record.id)"
+                 @mouseover="($event.currentTarget as HTMLElement).style.backgroundColor = '#f0f8ff'"
+                 @mouseout="($event.currentTarget as HTMLElement).style.backgroundColor = 'white'">
               <span style="color: #666;">{{ new Date(record.date).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }) }}</span>
               <span style="margin: 0 0.5rem; color: #333;">{{ record.title }}</span>
               <span v-if="record.location" style="color: #666;">を{{ record.location }}で開催</span>

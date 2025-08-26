@@ -138,6 +138,7 @@ onMounted(() => {
             :user="user" 
             @back="showClubList" 
             @show-applications="showClubApplications"
+            @show-event-detail="showEventDetail"
           />
           
           <ClubApplications 
