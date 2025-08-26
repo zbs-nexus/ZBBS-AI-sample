@@ -14,7 +14,7 @@
 import { computed, ref } from 'vue';
 
 interface Props {
-  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'info' | 'warning';
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'info' | 'warning' | 'template';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
 }
@@ -81,6 +81,11 @@ const buttonStyle = computed(() => {
       background: '#ff8c00',
       color: 'white',
       borderColor: '#ff8c00'
+    },
+    template: {
+      background: isHovered.value ? '#f8f9fa' : '#ffffff',
+      color: '#666666',
+      borderColor: '#e0e0e0'
     }
   };
 

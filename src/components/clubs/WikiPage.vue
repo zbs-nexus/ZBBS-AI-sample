@@ -30,6 +30,26 @@ const approvedParticipants = ref<Participant[]>([]);
 
 const hasContent = computed(() => wikiPage.value && wikiPage.value.content);
 
+const wikiTemplate = `# 部活動名：[ここに部活動名]
+
+## 活動目的
+[部活動を始めた理由や目的を簡単に記載]
+
+## 主な活動内容
+- [どんな活動をしているかを箇条書きで簡潔に記載]
+- [例：月1回の練習や勉強会、社内イベントの企画 など]
+
+## 活動予定
+- [次回の活動日・場所・内容など]
+- [例：9月10日 社内会議室にてボードゲーム会]
+
+## 参加方法・連絡先
+[参加方法や、問い合わせ先（担当者名やメールアドレス）を記載]`;
+
+function applyTemplate() {
+  editForm.value.content = wikiTemplate;
+}
+
 async function loadClub() {
   if (!props.clubId) return;
   club.value = await ClubService.getClub(props.clubId);
@@ -278,7 +298,12 @@ onMounted(() => {
         </div>
         
         <div class="form-group">
-          <label>内容</label>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <label>内容</label>
+            <BaseButton variant="template" size="small" @click="applyTemplate">
+              テンプレート
+            </BaseButton>
+          </div>
           <textarea v-model="editForm.content" 
                     placeholder="Wikiの内容を入力してください&#10;&#10;例:&#10;## 部活動について&#10;この部活動は...&#10;&#10;## 活動内容&#10;- 定期的な練習&#10;- イベント参加&#10;&#10;## 連絡先&#10;部長: 田中太郎"
                     rows="15"
