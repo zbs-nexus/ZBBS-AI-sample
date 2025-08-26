@@ -60,6 +60,11 @@ async function loadTagCategories() {
   tagCategories.value = await UIService.getTagsByCategory();
 }
 
+async function loadClubs() {
+  const { ClubService } = await import('../../services/clubService');
+  clubs.value = await ClubService.getClubs();
+}
+
 function getTagsByCategory(category: string) {
   const categoryData = tagCategories.value.find(c => c.name === category);
   return categoryData ? categoryData.tags : [];
@@ -246,6 +251,7 @@ function isRecruitmentExpired(event: Event) {
 onMounted(() => {
   loadEvents();
   loadTagCategories();
+  loadClubs();
 });
 </script>
 
@@ -296,6 +302,16 @@ onMounted(() => {
             <BaseInput v-model="editEvent.date" label="開催日時" type="datetime-local" required />
             <BaseInput v-model="editEvent.endDate" label="終了日時" type="datetime-local" required />
             <BaseInput v-model="editEvent.location" label="開催場所" required />
+            
+            <div class="form-group">
+              <label><strong>参加対象</strong></label>
+              <select v-model="editEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="">参加対象を選択してください</option>
+                <option value="だれでも歓迎">だれでも歓迎</option>
+                <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
+              </select>
+            </div>
+            
             <BaseInput :model-value="editEvent.maxParticipants.toString()" @update:model-value="editEvent.maxParticipants = parseInt($event) || 10" label="最大参加者数" type="number" />
             <BaseInput v-model="editEvent.recruitmentDeadline" label="募集期限" type="datetime-local" required />
             
@@ -353,6 +369,16 @@ onMounted(() => {
         <BaseInput v-model="newEvent.date" label="開催日時" type="datetime-local" required />
         <BaseInput v-model="newEvent.endDate" label="終了日時" type="datetime-local" required />
         <BaseInput v-model="newEvent.location" label="開催場所" required />
+        
+        <div class="form-group">
+          <label><strong>参加対象</strong></label>
+          <select v-model="newEvent.targetAudience" style="width: 100%; padding: 0.5rem; border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 8px;">
+            <option value="">参加対象を選択してください</option>
+            <option value="だれでも歓迎">だれでも歓迎</option>
+            <option v-for="club in clubs" :key="club.id" :value="club.name">{{ club.name }}</option>
+          </select>
+        </div>
+        
         <BaseInput :model-value="newEvent.maxParticipants.toString()" @update:model-value="newEvent.maxParticipants = parseInt($event) || 10" label="最大参加者数" type="number" />
         <BaseInput v-model="newEvent.representativeEmail" label="代表者メールアドレス" type="email" required />
         <BaseInput v-model="newEvent.recruitmentDeadline" label="募集期限" type="datetime-local" required />
